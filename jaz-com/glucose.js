@@ -5,13 +5,15 @@
  */
 
 import React, {Component} from 'react';
-import {StyleSheet, Text, View, Button} from 'react-native';
+import {AsyncStorage, StyleSheet, Text, View, Button} from 'react-native';
 import { JazComAccountDialog } from "./setup-dialog.js";
 
 type Props = {
 };
 
 type State = {
+  username: string,
+  password: string,
   value: number,
   trend: number,
   response: "",
@@ -24,23 +26,41 @@ export class JazComGlucose extends Component<Props, State> {
       value: 0,
       trend: -1,
       response: "",
+      username: "",
+      password: "",
     };
-    this.username = "";
-    this.password = "";
     this.authKey = "";
     this.lastUpdatedAuthKey = 0;
+    this.lastTimeoutId = 0;
   }
 
-  setCreds = (username, password) => {
-    this.username = username;
-    this.password = password;
-    this.getGlucose();
+  componentDidMount = () => {
+    this.updateCredsFromStore();
+  }
+  updateCredsFromStore = async () => {
+    try {
+      const username = (await AsyncStorage.getItem('@jazcom:username')) || "";
+      const password = (await AsyncStorage.getItem('@jazcom:password')) || "";
+      this.setState({ username, password, response: "Loaded user/pass" }, this.getGlucose);
+    } catch (error) {
+      this.setState({ response: error.toString() });
+    }
+  };
+
+  setCreds = async (username, password) => {
+    try {
+      await AsyncStorage.setItem('@jazcom:username', username);
+      await AsyncStorage.setItem('@jazcom:password', password);
+    } catch (error) {
+      this.setState({ response: error.toString() });
+    }
+    this.setState({ username, password }, this.getGlucose);
   };
 
   getGlucose = async () => {
-    const { username, password } = this;
+    const { username, password } = this.state;
     if (!username || !password) {
-      this.setState({ response: "Need username and password"});
+      this.setState({ response: "Need username and password!"});
       return;
     }
     const currentTime = new Date().getTime();
@@ -95,10 +115,14 @@ export class JazComGlucose extends Component<Props, State> {
       console.log(error);
       this.setState({ response: error.toString() });
     };
+    if (this.lastTimeoutId !== 0) {
+      clearTimeout(this.lastTimeoutId)
+    }
+    this.lastTimeoutId = setTimeout(this.getGlucose.bind(this), 5 * 60 * 1000);
   };
 
   render() {
-    const { value, response } = this.state;
+    const { value, trend, response, username, password } = this.state;
     return (
       <View style={styles.container}>
         <Button
@@ -108,10 +132,11 @@ export class JazComGlucose extends Component<Props, State> {
           accessibilityLabel="Refresh"
         />
         <Text style={styles.value}>{value ? value : "-"}</Text>
+        <Text style={styles.trend}>{trend !== -1 ? trend : "-"}</Text>
         <JazComAccountDialog
           setCreds={this.setCreds}
-          username={this.username}
-          password={this.password}
+          username={username}
+          password={password}
         />
         <Text style={styles.response}>{response}</Text>
       </View>
@@ -127,7 +152,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#002',
   },
   value: {
-    fontSize: 160,
+    fontSize: 200,
+    color: "#841584",
+  },
+  trend: {
+    fontSize: 16,
     color: "#841584",
   },
   response: {
