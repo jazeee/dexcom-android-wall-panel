@@ -10,6 +10,8 @@
 import React, {Component} from 'react';
 import {Platform, StyleSheet, Text, View, Button} from 'react-native';
 import KeepAwake from 'react-native-keep-awake';
+import { LightSwitch } from './lights/light-switch.js';
+import { JazComGlucose } from './jaz-com/glucose.js';
 
 const instructions = Platform.select({
   ios: 'Press Cmd+R to reload,\n' + 'Cmd+D or shake for dev menu',
@@ -22,33 +24,20 @@ type Props = {};
 export default class App extends Component<Props> {
   constructor(props) {
     super(props);
-    this.state = {
-      brightness: 1,
-    };
-    this.updateBrightness = this.updateBrightness.bind(this);
     KeepAwake.activate();
-  }
-  updateBrightness() {
-    this.setState(({ brightness }) => {
-      if (brightness > 0.8) {
-        brightness = 0.4;
-      } else {
-        brightness = 1.0;
-      }
-      return { brightness };
-    })
   }
   render() {
     return (
       <View style={styles.container}>
-        <Text style={styles.welcome}>JazCom Monitor!</Text>
-        <Text style={styles.instructions}>{instructions}</Text>
-        <Button
-          onPress={this.updateBrightness}
-          title="Update Brightness"
-          color="#841584"
-          accessibilityLabel="Learn more about this purple button"
-        />
+        <Text style={styles.welcome}>JazCom Monitor</Text>
+        <View style={styles.dexGroup}>
+          <JazComGlucose />
+        </View>
+        <View style={styles.bulbGroup}>
+          <LightSwitch switchId={200} />
+          <LightSwitch switchId={208} />
+          <LightSwitch switchId={202} />
+        </View>
       </View>
     );
   }
@@ -71,5 +60,13 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#eee',
     marginBottom: 5,
+  },
+  dexGroup: {
+    flex: 3,
+    flexDirection: "row",
+  },
+  bulbGroup: {
+    flex: 1,
+    flexDirection: "row",
   },
 });
