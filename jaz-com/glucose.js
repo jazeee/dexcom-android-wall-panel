@@ -152,11 +152,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#002',
   },
   value: {
-    fontSize: 200,
+    fontSize: 180,
     color: "#841584",
   },
   trend: {
-    fontSize: 16,
+    fontSize: 64,
     color: "#841584",
   },
   response: {
