@@ -10,17 +10,42 @@ Uses React Native
 
 `react-native start --reset-cache`
 
+(Press R twice to reload UI)
+
 
 ### To trigger debug menu.
 
 1. Either shake device or
 2. `adb shell input keyevent 82`
 
+### Curl notes
+```
+curl   -H "Accept: application/json" -H "Content-Type: application/json"   -H "User-Agent: Dexcom Share/3.0.2.11 CFNetwork/711.2.23 Darwin/14.0.0"   -X POST https://share1.dexcom.com/ShareWebServices/Services/General/LoginPublisherAccountByName   -d '{"applicationId":"d8665ade-9673-4e27-9ff6-92db4ce13d13","accountName": "jazeee", "password": ""}'
 
+curl   -H "Content-Length: 0" -H "Accept: application/json"   -H "User-Agent: Dexcom Share/3.0.2.11 CFNetwork/672.0.2 Darwin/14.0.0"   -X POST 'https://share1.dexcom.com/ShareWebServices/Services/Publisher/ReadPublisherLatestGlucoseValues?sessionId=abc123-342&minutes=1440&maxCount=1'
+```
+Output like:
+```
+[{
+  "DT":"\/Date(1558231462000-0700)\/",
+  "ST":"\/Date(1558231462000)\/",
+  "Trend":3,
+  "Value":177,
+  "WT":"\/Date(1558231462000)\/"
+},{
+  "DT":"\/Date(1558231162000-0700)\/",
+  "ST":"\/Date(1558231162000)\/",
+  "Trend":3,
+  "Value":169,
+  "WT":"\/Date(1558231162000)\/"
+}...
+DT is device, ST is server. Trend of 4 is flat, 3 is up, 2 is very up, 5 is down, 6 is very down.
+```
 ### Install notes
 Must use new file if you forgot the pwd:
 `keytool -genkey -v -keystore ~/.gradle/jazcomkeystore -alias jazcomkeystore -keyalg RSA -keysize 2048 -validity 90000`
-rG
+
+See `~/.gradle/gradle.properties` for default
 
 ```
 cd android
