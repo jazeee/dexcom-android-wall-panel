@@ -52,8 +52,8 @@ export class GlucoseGraph extends Component<Props, State> {
           width={width}
           height={height}
           stroke={color}
-          strokeWidth={isInRange ? 1 : 3}
-          fill={isInRange ? "none" : color}
+          strokeWidth={isInRange ? 1 : 6}
+          fill="none"
           opacity={isInRange ? 0.2 : 0.5}
         />
         <Line
