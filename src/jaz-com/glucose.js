@@ -191,16 +191,18 @@ export class JazComGlucose extends Component<Props, State> {
     // https://materialdesignicons.com/
     switch (this.state.trend) {
       case 1:
-      return "arrow-up";
-      case 2:
       return "arrow-up-thick";
+      case 2:
+      return "arrow-up";
       case 3:
-      return "arrow-top-right-thick";
+      return "arrow-top-right";
       case 4:
-      return "arrow-right-thick";
+      return "arrow-right";
       case 5:
-      return "arrow-bottom-right-thick";
+      return "arrow-bottom-right";
       case 6:
+      return "arrow-down";
+      case 7:
       return "arrow-down-thick";
       default:
       return "question";
@@ -240,9 +242,12 @@ export class JazComGlucose extends Component<Props, State> {
           </View>
         }
         <ScrollView style={styles.innerContainer}>
-          <Text style={styles.value}>
+          <Text style={{...styles.value, fontSize: 180 - (width > 480 ? 0 : 60)}}>
             {value ? value : "-"}{" "}
-            <Icon name={this.getIconName()} size={120} />
+            <Icon name={this.getIconName()} size={width > 480 ? 120 : 80} />
+            {(trend === 1 || trend === 7 )&& (
+              <Icon name={this.getIconName()} size={width > 480 ? 120 : 80} />
+            )}
           </Text>
           <JazComAccountDialog
             setCreds={this.setCreds}
