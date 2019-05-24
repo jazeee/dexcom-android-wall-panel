@@ -1,6 +1,10 @@
 ## JazCom on Droid
 
-Uses React Native
+Uses React Native to show data.
+
+Example:
+
+![Alt text](app-screen.png?raw=true "Screenshot")
 
 ###To Initialize:
 
