@@ -5,19 +5,20 @@
  */
 
 import React, {Component} from 'react';
-import {StyleSheet, Text, View, Button} from 'react-native';
+import {StyleSheet, Text, View} from 'react-native';
 import Dialog from "react-native-dialog";
 
 type Props = {
   username: string,
   password: string,
   setCreds: (string, string) => any,
+  isSetupDialogVisible: boolean,
+  setIsSetupDialogVisible: (boolean) => any,
 };
 
 type State = {
   username: string,
   password: string,
-  isSetupDialogVisible: boolean,
 }
 
 export class JazComAccountDialog extends Component<Props, State> {
@@ -26,25 +27,19 @@ export class JazComAccountDialog extends Component<Props, State> {
     this.state = {
       username: props.username || "",
       password: props.password || "",
-      isSetupDialogVisible: false,
     };
   }
 
   onAccept = () => {
-    this.setState({ isSetupDialogVisible: false });
+    this.props.setIsSetupDialogVisible(false);
     const { username, password } = this.state;
     this.props.setCreds(username, password);
   }
   render () {
-    const { username, password, isSetupDialogVisible } = this.state;
+    const { isSetupDialogVisible } = this.props;
+    const { username, password } = this.state;
     return (
       <View>
-        <Button
-          onPress={() => this.setState({ isSetupDialogVisible: true })}
-          title={`Set up Account`}
-          color="#841584"
-          accessibilityLabel="Set up Account"
-        />
         <Dialog.Container visible={isSetupDialogVisible}>
           <Dialog.Title>Account</Dialog.Title>
           <Dialog.Description>
@@ -69,7 +64,7 @@ export class JazComAccountDialog extends Component<Props, State> {
             onChangeText={(password) => this.setState({ password })}
           />
           <Dialog.Button
-            onPress={() => this.setState({ isSetupDialogVisible: false })}
+            onPress={() => this.props.setIsSetupDialogVisible(false)}
             label="Cancel"
           />
           <Dialog.Button

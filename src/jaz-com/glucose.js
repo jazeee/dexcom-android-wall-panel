@@ -9,9 +9,9 @@ import {
   AsyncStorage,
   StyleSheet,
   Text,
+  Button,
   ScrollView,
   View,
-  Button,
 } from 'react-native';
 import { JazComAccountDialog } from "./setup-dialog.js";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -26,6 +26,7 @@ type Props = {
 type State = {
   username: string,
   password: string,
+  isSetupDialogVisible: boolean,
   value: number,
   trend: number,
   timeSinceLastReadingInSeconds: number,
@@ -41,10 +42,17 @@ export class JazComGlucose extends Component<Props, State> {
     return {
       title: 'Glucose',
       headerRight: (
-        <Button
-          onPress={() => navigation.navigate('Home')}
-          title="Home"
-        />
+        <Fragment>
+          <Button
+            onPress={() => navigation.getParam("setIsSetupDialogVisible")(true)}
+            title={`Set up Account`}
+            accessibilityLabel="Set up Account"
+          />
+          <Button
+            onPress={() => navigation.navigate('Home')}
+            title="Home"
+          />
+        </Fragment>
       ),
     };
   };
@@ -58,15 +66,18 @@ export class JazComGlucose extends Component<Props, State> {
       response: "",
       username: "",
       password: "",
+      isSetupDialogVisible: false,
     };
     this.authKey = "";
     this.lastUpdatedAuthKey = 0;
     this.lastTimeoutId = 0;
+    this.failureCount = 0;
   }
 
   componentDidMount = () => {
     this.isThisMounted = true;
     this.updateCredsFromStore();
+    this.props.navigation.setParams({ setIsSetupDialogVisible: this.setIsSetupDialogVisible });
   }
   componentWillUnmount = () => {
     this.isThisMounted = false;
@@ -94,6 +105,8 @@ export class JazComGlucose extends Component<Props, State> {
     }
     this.setState({ username, password }, this.getGlucose);
   };
+
+  setIsSetupDialogVisible = (isSetupDialogVisible) => this.setState({ isSetupDialogVisible });
 
   getGlucose = async () => {
     if (!this.isThisMounted) {
@@ -163,14 +176,16 @@ export class JazComGlucose extends Component<Props, State> {
         isOldReading,
         readings,
       });
+      this.failureCount = 0;
     } catch (error) {
       console.log(error);
       this.setState({ response: error.toString() });
+      this.failureCount += 1;
     };
     if (this.lastTimeoutId !== 0) {
       clearTimeout(this.lastTimeoutId)
     }
-    this.lastTimeoutId = setTimeout(this.getGlucose.bind(this), 5 * 60 * 1000);
+    this.lastTimeoutId = setTimeout(this.getGlucose.bind(this), (this.failureCount + 1) * 5 * 60 * 1000);
   };
   getIconName = () => {
     // https://materialdesignicons.com/
@@ -201,6 +216,7 @@ export class JazComGlucose extends Component<Props, State> {
       response,
       username,
       password,
+      isSetupDialogVisible,
       isOldReading,
       width,
       height,
@@ -232,6 +248,8 @@ export class JazComGlucose extends Component<Props, State> {
             setCreds={this.setCreds}
             username={username}
             password={password}
+            isSetupDialogVisible={isSetupDialogVisible}
+            setIsSetupDialogVisible={this.setIsSetupDialogVisible}
           />
           <Text style={styles.response}>
             {response}
