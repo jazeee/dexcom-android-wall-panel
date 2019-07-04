@@ -119,7 +119,8 @@ export class JazComGlucose extends Component<Props, State> {
     }
     const currentTime = new Date().getTime();
     try {
-      if (currentTime - this.lastUpdatedAuthKey > 30 * 60 * 1000) {
+      if (currentTime - this.lastUpdatedAuthKey > 45 * 60 * 1000) {
+        this.lastUpdatedAuthKey = currentTime;
         // Load auth key
           const postResult = await fetch('https://share1.dexcom.com/ShareWebServices/Services/General/LoginPublisherAccountByName', {
             method: "POST",
@@ -140,7 +141,6 @@ export class JazComGlucose extends Component<Props, State> {
           }
           this.authKey = await postResult.json();
       }
-      this.lastUpdatedAuthKey = currentTime;
       if (!this.authKey) {
         throw new Error("Unable to load auth key");
       }
@@ -272,7 +272,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#002',
+    backgroundColor: '#000',
   },
   innerContainer: {
   },
