@@ -20,6 +20,7 @@ import { GlucoseGraph } from "./glucose-graph.js";
 
 const plotMargin = 5;
 const plotMarginX2 = plotMargin * 2;
+const EXTRA_LATENCY_IN_SECONDS = 0.5;
 type Props = {
 };
 
@@ -117,6 +118,7 @@ export class JazComGlucose extends Component<Props, State> {
       this.setState({ response: "Need username and password!"});
       return;
     }
+    let delayToNextRequestInSeconds = 5 * 60;
     const currentTime = new Date().getTime();
     try {
       if (currentTime - this.lastUpdatedAuthKey > 45 * 60 * 1000) {
@@ -176,6 +178,8 @@ export class JazComGlucose extends Component<Props, State> {
         isOldReading,
         readings,
       });
+      delayToNextRequestInSeconds = (5 * 60) - timeSinceLastReadingInSeconds;
+      delayToNextRequestInSeconds = Math.max(2 * 60, delayToNextRequestInSeconds) + EXTRA_LATENCY_IN_SECONDS;
       this.failureCount = 0;
     } catch (error) {
       console.log(error);
@@ -185,7 +189,7 @@ export class JazComGlucose extends Component<Props, State> {
     if (this.lastTimeoutId !== 0) {
       clearTimeout(this.lastTimeoutId)
     }
-    this.lastTimeoutId = setTimeout(this.getGlucose.bind(this), (this.failureCount + 1) * 5 * 60 * 1000);
+    this.lastTimeoutId = setTimeout(this.getGlucose.bind(this), (this.failureCount + 1) * delayToNextRequestInSeconds * 1000);
   };
   getIconName = () => {
     // https://materialdesignicons.com/
