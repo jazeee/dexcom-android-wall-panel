@@ -20,13 +20,14 @@ import { GlucoseGraph } from "./glucose-graph.js";
 
 const plotMargin = 5;
 const plotMarginX2 = plotMargin * 2;
-const EXTRA_LATENCY_IN_SECONDS = 0.5;
+const EXTRA_LATENCY_IN_SECONDS = 10 + 10 * Math.random();
 type Props = {
 };
 
 type State = {
   username: string,
   password: string,
+  urls: object,
   isSetupDialogVisible: boolean,
   value: number,
   trend: number,
@@ -38,10 +39,10 @@ type State = {
   height: 0,
 }
 
-export class JazComGlucose extends Component<Props, State> {
+export class JazComData extends Component<Props, State> {
   static navigationOptions = ({ navigation }) => {
     return {
-      title: 'Glucose',
+      title: 'Data',
       headerRight: (
         <Fragment>
           <Button
@@ -67,6 +68,7 @@ export class JazComGlucose extends Component<Props, State> {
       response: "",
       username: "",
       password: "",
+      urls: undefined,
       isSetupDialogVisible: false,
     };
     this.authKey = "";
@@ -91,7 +93,7 @@ export class JazComGlucose extends Component<Props, State> {
     try {
       const username = (await AsyncStorage.getItem('@jazcom:username')) || "";
       const password = (await AsyncStorage.getItem('@jazcom:password')) || "";
-      this.setState({ username, password, response: "Loaded user/pass" }, this.getGlucose);
+      this.setState({ username, password, response: "Loaded user/pass" }, this.getData);
     } catch (error) {
       this.setState({ response: error.toString() });
     }
@@ -104,12 +106,34 @@ export class JazComGlucose extends Component<Props, State> {
     } catch (error) {
       this.setState({ response: error.toString() });
     }
-    this.setState({ username, password }, this.getGlucose);
+    this.setState({ username, password }, this.getData);
   };
 
   setIsSetupDialogVisible = (isSetupDialogVisible) => this.setState({ isSetupDialogVisible });
 
-  getGlucose = async () => {
+  getUrls = async () => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const response = await fetch("https://jazcom.jazeee.com/dx/urls.json");
+        const { status } = response;
+        if (status !== 200) {
+          throw new Error(await postResult.text());
+        }
+        const urls = await response.json();
+        if (!urls) {
+          throw new Error("No URL JSON content");
+        }
+        this.setState({ urls }, () => {
+          resolve(urls);
+        });
+      } catch (error) {
+        this.setState({ response: error.toString() });
+        reject(error);
+      }
+    });
+  }
+
+  getData = async () => {
     if (!this.isThisMounted) {
       return;
     }
@@ -121,20 +145,24 @@ export class JazComGlucose extends Component<Props, State> {
     let delayToNextRequestInSeconds = 5 * 60;
     const currentTime = new Date().getTime();
     try {
+      let { urls } = this.state;
+      if (!urls) {
+        urls = await this.getUrls();
+      }
+      const {
+        auth: authReq,
+        data: dataReq,
+      } = urls;
       if (currentTime - this.lastUpdatedAuthKey > 45 * 60 * 1000) {
         this.lastUpdatedAuthKey = currentTime;
         // Load auth key
-          const postResult = await fetch('https://share1.dexcom.com/ShareWebServices/Services/General/LoginPublisherAccountByName', {
+        const postResult = await fetch(authReq.url, {
             method: "POST",
-            headers: {
-              Accept: 'application/json',
-              'Content-Type': 'application/json',
-              "User-Agent": "Dexcom Share/3.0.2.11 CFNetwork/711.2.23 Darwin/14.0.0",
-            },
+            headers: authReq.headers,
             body: JSON.stringify({
+              ...authReq.bodyBase,
               accountName: username,
               password,
-              applicationId: "d8665ade-9673-4e27-9ff6-92db4ce13d13",
             })
           });
           const { status } = postResult;
@@ -146,18 +174,10 @@ export class JazComGlucose extends Component<Props, State> {
       if (!this.authKey) {
         throw new Error("Unable to load auth key");
       }
-      const postResult = await fetch(`https://share1.dexcom.com/ShareWebServices/Services/Publisher/ReadPublisherLatestGlucoseValues?sessionId=${this.authKey}&minutes=1440&maxCount=100`, {
+      const postResult = await fetch(`${dataReq.url}?sessionId=${this.authKey}&minutes=1440&maxCount=100`, {
         method: "POST",
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-          "User-Agent": "Dexcom Share/3.0.2.11 CFNetwork/711.2.23 Darwin/14.0.0",
-        },
-        body: JSON.stringify({
-          accountName: username,
-          password,
-          applicationId: "d8665ade-9673-4e27-9ff6-92db4ce13d13",
-        })
+        headers: dataReq.headers,
+        body: '',
       });
       const { status } = postResult;
       if (status !== 200) {
@@ -189,8 +209,9 @@ export class JazComGlucose extends Component<Props, State> {
     if (this.lastTimeoutId !== 0) {
       clearTimeout(this.lastTimeoutId)
     }
-    this.lastTimeoutId = setTimeout(this.getGlucose.bind(this), (this.failureCount + 1) * delayToNextRequestInSeconds * 1000);
+    this.lastTimeoutId = setTimeout(this.getData.bind(this), (this.failureCount + 1) * delayToNextRequestInSeconds * 1000);
   };
+
   getIconName = () => {
     // https://materialdesignicons.com/
     switch (this.state.trend) {

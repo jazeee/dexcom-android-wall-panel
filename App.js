@@ -11,7 +11,7 @@ import React from 'react';
 import {Platform, StyleSheet} from 'react-native';
 import KeepAwake from 'react-native-keep-awake';
 import { Home } from './src/home/home.js';
-import { JazComGlucose } from './src/jaz-com/glucose.js';
+import { JazComData } from './src/jaz-com/glucose.js';
 import { createStackNavigator, createAppContainer } from "react-navigation";
 
 const instructions = Platform.select({
@@ -23,9 +23,9 @@ const instructions = Platform.select({
 
 const AppNavigator = createStackNavigator({
   Home,
-  Glucose: JazComGlucose,
+  Data: JazComData,
 }, {
-  initialRouteName: "Glucose",
+  initialRouteName: "Data",
   defaultNavigationOptions: {
     headerStyle: {
       backgroundColor: '#000',
