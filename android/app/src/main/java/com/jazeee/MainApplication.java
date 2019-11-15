@@ -1,4 +1,4 @@
-package com.reactnativedexdroid;
+package com.jazeee;
 
 import android.app.Application;
 
