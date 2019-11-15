@@ -1,4 +1,4 @@
-package com.reactnativedexdroid;
+package com.jazeee;
 
 import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactActivityDelegate;

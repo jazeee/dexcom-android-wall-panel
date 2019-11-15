@@ -1,6 +1,7 @@
 {
-  "name": "ReactNativeDexDroid",
-  "version": "1.0.9",
+  "name": "JazCom",
+  "description": "JazCom Data Viewer - Plot data from API every 5 minutes or so.",
+  "version": "1.0.10",
   "private": true,
   "scripts": {
     "start": "node node_modules/react-native/local-cli/cli.js start",
