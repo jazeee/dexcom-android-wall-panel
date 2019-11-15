@@ -2,7 +2,11 @@
 
 Uses React Native to show data.
 
-[Published on Google Play store](https://play.google.com/store/apps/details?id=com.jazeee)
+### App Stores:
+
+[Google Play Store](https://play.google.com/store/apps/details?id=com.jazeee)
+
+[Amazon App Store](https://www.amazon.com/Jaz-Singh-JazCom-Data-Viewer/dp/B07ZXPBPD4/ref=sr_1_fkmr0_1)
 
 Example:
 
