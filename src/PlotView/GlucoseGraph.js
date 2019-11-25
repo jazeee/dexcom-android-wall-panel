@@ -24,7 +24,7 @@ type Props = {
 type State = {
 }
 
-export class GlucoseGraph extends Component<Props, State> {
+export default class GlucoseGraph extends Component<Props, State> {
   render() {
     const {
       width,

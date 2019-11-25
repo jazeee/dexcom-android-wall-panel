@@ -14,13 +14,19 @@ Example:
 
 ### To Initialize:
 
-`react-native run-android`
+Install `react-native`
 
 ### To run with livereload:
 
-`react-native start --reset-cache`
+* Start the live reload service:
 
-(Press R twice to reload UI)
+`yarn start`
+
+* To deploy the app to the device:
+
+`yarn android`
+
+(Shake the device to get a debug menu, which allows reload)
 
 
 ### To trigger debug menu.

@@ -21,7 +21,7 @@ type State = {
   password: string,
 }
 
-export class JazComAccountDialog extends Component<Props, State> {
+export default class AccountDialog extends Component<Props, State> {
   constructor(props) {
     super(props);
     this.state = {
