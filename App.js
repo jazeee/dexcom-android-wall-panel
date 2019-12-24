@@ -10,9 +10,12 @@
 import React from 'react';
 import {Platform, StyleSheet} from 'react-native';
 import KeepAwake from 'react-native-keep-awake';
-import Home from './src/Home/Home.js';
-import PlotView from './src/PlotView/PlotView.js';
-import { createStackNavigator, createAppContainer } from "react-navigation";
+import {createAppContainer} from 'react-navigation';
+import {createStackNavigator} from 'react-navigation-stack';
+
+import { COLORS } from './src/common/colors';
+import Home from './src/Home/Home';
+import PlotView from './src/PlotView/PlotView';
 
 const instructions = Platform.select({
   ios: 'Press Cmd+R to reload,\n' + 'Cmd+D or shake for dev menu',
@@ -22,15 +25,15 @@ const instructions = Platform.select({
 });
 
 const AppNavigator = createStackNavigator({
-  Home,
-  PlotView,
+  Home: { screen: Home },
+  PlotView: { screen: PlotView },
 }, {
   initialRouteName: "PlotView",
   defaultNavigationOptions: {
     headerStyle: {
       backgroundColor: '#000',
     },
-    headerTintColor: '#841584',
+    headerTintColor: COLORS.primary,
   },
 });
 
