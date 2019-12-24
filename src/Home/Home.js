@@ -8,7 +8,7 @@ import React, {Component, Fragment} from 'react';
 import {StyleSheet, Text, View, Button} from 'react-native';
 
 type Props = {};
-export class Home extends Component<Props> {
+export default class Home extends Component<Props> {
   static navigationOptions = ({ navigation }) => {
     return {
       title: 'Home',

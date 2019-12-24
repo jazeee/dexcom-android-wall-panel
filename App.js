@@ -10,8 +10,8 @@
 import React from 'react';
 import {Platform, StyleSheet} from 'react-native';
 import KeepAwake from 'react-native-keep-awake';
-import { Home } from './src/home/home.js';
-import { JazComData } from './src/jaz-com/glucose.js';
+import Home from './src/Home/Home.js';
+import PlotView from './src/PlotView/PlotView.js';
 import { createStackNavigator, createAppContainer } from "react-navigation";
 
 const instructions = Platform.select({
@@ -23,9 +23,9 @@ const instructions = Platform.select({
 
 const AppNavigator = createStackNavigator({
   Home,
-  Data: JazComData,
+  PlotView,
 }, {
-  initialRouteName: "Data",
+  initialRouteName: "PlotView",
   defaultNavigationOptions: {
     headerStyle: {
       backgroundColor: '#000',

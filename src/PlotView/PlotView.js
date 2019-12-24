@@ -13,10 +13,10 @@ import {
   ScrollView,
   View,
 } from 'react-native';
-import { JazComAccountDialog } from "./setup-dialog.js";
+import { JazComAccountDialog } from "./AccountDialog.js";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { extractDate } from "./utils";
-import { GlucoseGraph } from "./glucose-graph.js";
+import { GlucoseGraph } from "./GlucoseGraph.js";
 
 const plotMargin = 5;
 const plotMarginX2 = plotMargin * 2;
@@ -39,7 +39,7 @@ type State = {
   height: 0,
 }
 
-export class JazComData extends Component<Props, State> {
+export default class PlotView extends Component<Props, State> {
   static navigationOptions = ({ navigation }) => {
     return {
       title: 'Data',
