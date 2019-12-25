@@ -3,8 +3,8 @@
  * @flow
  */
 
-import React, { useState, useEffect, useCallback, useRef, Fragment } from 'react';
-import { StyleSheet, Text, View, Button } from 'react-native';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { StyleSheet, Text } from 'react-native';
 
 import { COLORS } from '../colors';
 
@@ -24,12 +24,12 @@ export default function DateTime(props: Props) {
   }, []);
 
   useEffect(() => {
-    const interval = updateTime();
+    updateTime();
     return () => {
       if (timerRef.current >= 0) {
         clearTimeout(timerRef.current);
       }
-    }
+    };
   }, [updateTime, timerRef]);
 
   const { style = {} } = props;
@@ -38,8 +38,7 @@ export default function DateTime(props: Props) {
       style={{
         ...styles.dateTime,
         ...style,
-      }}
-    >
+      }}>
       {dateTime}
     </Text>
   );
