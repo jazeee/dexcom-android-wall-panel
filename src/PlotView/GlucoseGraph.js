@@ -24,7 +24,7 @@ type Props = {
 type State = {
 }
 
-export class GlucoseGraph extends Component<Props, State> {
+export default class GlucoseGraph extends Component<Props, State> {
   render() {
     const {
       width,
@@ -33,6 +33,9 @@ export class GlucoseGraph extends Component<Props, State> {
     } = this.props;
     if (!width || !height || !readings || !readings.length) {
       return null;
+    }
+    const calcTimePosition = (value) => {
+      return width - (value / 20);
     }
     const calcValuePosition = (value) => {
       return height - (height * (value - 30)/250);
@@ -83,7 +86,7 @@ export class GlucoseGraph extends Component<Props, State> {
           return (
             <Circle
               key={index}
-              cx={width - (timeSinceLastReadingInSeconds / 20)}
+              cx={calcTimePosition(timeSinceLastReadingInSeconds)}
               cy={calcValuePosition(value)}
               r="5"
               stroke="white"

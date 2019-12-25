@@ -3,7 +3,7 @@
  * @flow
  */
 
-import React, { useState, useEffect, useCallback, useRef, Fragment } from 'react';
+import React from 'react';
 import { StyleSheet, Text, View, Button } from 'react-native';
 
 import { COLORS } from '../colors';
@@ -12,37 +12,49 @@ type Props = {
   style?: object,
 };
 
-export default function DateTime(props: Props) {
-  const [dateTime, setDateTime] = useState('');
-  const timerRef = useRef(-1);
+type State = {
+  dateTime: string,
+}
 
-  const updateTime = useCallback(() => {
-    setDateTime(new Date().toLocaleTimeString());
-    timerRef.current = setTimeout(() => {
-      updateTime();
-    }, 1000);
-  }, []);
+// Apparently, React hooks break on KitKat...
+export default class DateTime extends React.Component<Props, State> {
+  state = {
+    dateTime: 'Loading...',
+  }
+  timerRef = undefined;
 
-  useEffect(() => {
-    const interval = updateTime();
-    return () => {
-      if (timerRef.current >= 0) {
-        clearTimeout(timerRef.current);
-      }
+  componentDidMount() {
+    this.updateTime();
+  }
+
+  componentWillUnmount() {
+    if (this.timerRef != null) {
+      clearTimeout(this.timerRef);
+      this.timerRef = undefined;
     }
-  }, [updateTime, timerRef]);
+  }
 
-  const { style = {} } = props;
-  return (
-    <Text
-      style={{
-        ...styles.dateTime,
-        ...style,
-      }}
-    >
-      {dateTime}
-    </Text>
-  );
+  updateTime = () => {
+    this.setState({ dateTime: new Date().toLocaleTimeString() });
+    this.timerRef = setTimeout(() => {
+      this.updateTime();
+    }, 1000);
+  }
+
+  render() {
+    const { dateTime } = this.state;
+    const { style = {} } = this.props;
+    return (
+      <Text
+        style={{
+          ...styles.dateTime,
+          ...style,
+        }}
+      >
+        {dateTime}
+      </Text>
+    );
+  }
 }
 
 const styles = StyleSheet.create({
