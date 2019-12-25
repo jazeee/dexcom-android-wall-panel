@@ -167,10 +167,11 @@ export default class PlotView extends Component<Props, State> {
       if (currentTime - this.lastUpdatedAuthKey > 45 * 60 * 1000) {
         this.lastUpdatedAuthKey = currentTime;
         // Load auth key
+        const { method = "POST" } = authReq;
         const postResult = await fetch(authReq.url, {
-            method: authReq.method || "POST",
+            method,
             headers: authReq.headers,
-            body: authReq.method !== "GET" ? JSON.stringify({
+            body: method !== "GET" ? JSON.stringify({
               ...authReq.bodyBase,
               accountName: username,
               password,
@@ -178,7 +179,7 @@ export default class PlotView extends Component<Props, State> {
           });
           const { status } = postResult;
           if (status !== 200) {
-            throw new Error("Unable to Post Username");
+            throw new Error(`Unable to ${method} Username`);
           }
           this.authKey = await postResult.json();
       }
@@ -198,11 +199,11 @@ export default class PlotView extends Component<Props, State> {
       const [firstReading] = readings;
       if (isSampleUser) {
         const firstReadingDate = extractDate(firstReading);
-        for (reading of readings) {
+        readings.forEach(reading => {
           const readingDate = extractDate(reading);
           const updatedTimeInMilliseconds = Date.now() + readingDate.timeInMilliseconds - firstReadingDate.timeInMilliseconds;
           reading.ST = `/Date(${updatedTimeInMilliseconds})/`;
-        }
+        });
       }
       const { Trend: trend, Value: value } = firstReading;
       const { timeSinceLastReadingInSeconds, isOldReading } = extractDate(firstReading) || {};
