@@ -7,9 +7,11 @@
 import React, { Component } from 'react';
 import Svg, { Circle, Rect } from 'react-native-svg';
 import AxisLine from './AxisLine';
+import VertAxisLine from './VertAxisLine';
 import SvgText from './SvgText';
 import { extractData } from '../utils';
-import { projectReadings } from './project-readings';
+import { projectReadings } from './regress-readings';
+import { format, subMinutes } from 'date-fns';
 
 type Props = {
   readings: PropTypes.array,
@@ -29,7 +31,7 @@ export default class GlucoseGraph extends Component<Props, State> {
       return null;
     }
     const calcTimePosition = value => {
-      return width * 0.9 - value / 20;
+      return width * 0.8 - value / 20;
     };
     const calcValuePosition = value => {
       let heightRatio = 1 - (value - MIN_Y_VALUE) / (MAX_Y_VALUE - MIN_Y_VALUE);
@@ -41,6 +43,14 @@ export default class GlucoseGraph extends Component<Props, State> {
     const [lastReadingDatum] = readingData;
     const { color: lastReadingColor, isInRange } = lastReadingDatum;
     const projectedReadings = projectReadings(readingData);
+    const dateAxisValues = [];
+    const now = Date.now();
+    for (let i = 0; i <= 5 * 60; i += 60) {
+      dateAxisValues.push({
+        x: calcTimePosition(i * 60),
+        value: format(subMinutes(now, i), 'hh:mm a'),
+      });
+    }
     return (
       <Svg width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
         <Rect
@@ -75,9 +85,9 @@ export default class GlucoseGraph extends Component<Props, State> {
           const {
             value,
             timeSinceLastReadingInSeconds,
-            timeSinceLastReadingInMinutes,
             color,
             isProjected,
+            opacity = 1.0,
           } = datum;
           const x = calcTimePosition(timeSinceLastReadingInSeconds);
           const y = calcValuePosition(value);
@@ -89,10 +99,10 @@ export default class GlucoseGraph extends Component<Props, State> {
                 cx={x}
                 cy={y}
                 r="5"
-                stroke="white"
+                stroke={isProjected ? color : 'white'}
                 strokeWidth="1.5"
                 fill={color}
-                opacity={isProjected ? 0.2 : 1.0}
+                opacity={opacity}
               />
               {!isProjected && index % 5 === 0 && (
                 <SvgText
@@ -106,18 +116,19 @@ export default class GlucoseGraph extends Component<Props, State> {
                   {value}
                 </SvgText>
               )}
-              {!isProjected && index % 8 === 0 && (
-                <SvgText
-                  x={x}
-                  y={calcValuePosition(MIN_Y_VALUE)}
-                  color="#666"
-                  textAnchor={textAnchor}
-                  opacity={1}
-                  fontSize={16}>
-                  {-Math.round(timeSinceLastReadingInMinutes)}
-                </SvgText>
-              )}
             </>
+          );
+        })}
+        {dateAxisValues.map(axis => {
+          const { x, value } = axis;
+          return (
+            <VertAxisLine
+              key={x}
+              x={x}
+              height={height}
+              color="#666"
+              value={value}
+            />
           );
         })}
       </Svg>
