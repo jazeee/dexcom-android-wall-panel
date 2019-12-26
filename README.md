@@ -14,14 +14,25 @@ Example:
 
 ### To Initialize:
 
-`react-native run-android`
+Install `react-native`, adb, and recommended tooling for non-Expo development.
 
 ### To run with livereload:
 
-`react-native start --reset-cache`
+You first have to start react-native dev listener, then
+deploy the dev app to the device.
 
-(Press R twice to reload UI)
+#### First start React Native dev live reload service:
 
+1. Start the live reload service (this will start listening on port 8081):
+2. `yarn start`
+
+#### Next spawn and deploy the app to the device
+
+1. If necessary, uninstall any version of this app. (Step 2 will fail otherwise)
+2. Deploy the app to the device and let it connect to 8081.
+3. `yarn android`
+
+(Shake the device to get a debug menu, which allows reload)
 
 ### To trigger debug menu.
 

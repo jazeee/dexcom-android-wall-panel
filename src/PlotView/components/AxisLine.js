@@ -1,7 +1,5 @@
 import React from 'react';
-import {
-  Line,
-} from 'react-native-svg';
+import { Line } from 'react-native-svg';
 import SvgText from './SvgText';
 
 type Props = {
@@ -12,7 +10,7 @@ type Props = {
 };
 
 const AxisLine = (props: Props) => {
-  const { x, y, width, value, color } = props;
+  const { y, width, value, color } = props;
   return (
     <>
       <Line
@@ -24,15 +22,11 @@ const AxisLine = (props: Props) => {
         strokeWidth={1}
         opacity={0.5}
       />
-      <SvgText
-        x={0}
-        y={y}
-        color={color}
-      >
+      <SvgText x={0} y={y} color={color}>
         {value}
       </SvgText>
     </>
-  )
-}
+  );
+};
 
 export default AxisLine;

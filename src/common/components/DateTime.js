@@ -5,6 +5,7 @@
 
 import React from 'react';
 import { StyleSheet, Text, View, Button } from 'react-native';
+import { format } from 'date-fns';
 
 import { COLORS } from '../colors';
 
@@ -35,7 +36,7 @@ export default class DateTime extends React.Component<Props, State> {
   }
 
   updateTime = () => {
-    this.setState({ dateTime: new Date().toLocaleTimeString() });
+    this.setState({ dateTime: format(new Date(), 'hh:mm:ss a') });
     this.timerRef = setTimeout(() => {
       this.updateTime();
     }, 1000);
