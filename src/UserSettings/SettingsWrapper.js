@@ -3,7 +3,7 @@ import React from 'react';
 import { DEFAULT_SETTINGS } from './storage';
 import { SettingsProvider } from './context';
 
-class UserSettings extends React.Component {
+class SettingsWrapper extends React.Component {
   state = {
     ...DEFAULT_SETTINGS,
   };
@@ -22,4 +22,4 @@ class UserSettings extends React.Component {
   }
 }
 
-export default UserSettings;
+export default SettingsWrapper;
