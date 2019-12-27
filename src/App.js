@@ -12,17 +12,20 @@ import KeepAwake from 'react-native-keep-awake';
 import { createAppContainer } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
 
-import { COLORS } from './src/common/colors';
-import Home from './src/Home/Home';
-import PlotView from './src/PlotView/PlotView';
+import LoadingView from './UserSettings/LoadingView';
+import UserSettings from './UserSettings/UserSettings';
+import { COLORS } from './common/colors';
+import Home from './Home/Home';
+import PlotView from './PlotView/PlotView';
 
 const AppNavigator = createStackNavigator(
   {
     Home: { screen: Home },
+    LoadingView: { screen: LoadingView },
     PlotView: { screen: PlotView },
   },
   {
-    initialRouteName: 'PlotView',
+    initialRouteName: 'LoadingView',
     defaultNavigationOptions: {
       headerStyle: {
         backgroundColor: '#000',
@@ -40,6 +43,10 @@ export default class App extends React.Component {
     KeepAwake.activate();
   }
   render() {
-    return <AppContainer />;
+    return (
+      <UserSettings>
+        <AppContainer />
+      </UserSettings>
+    );
   }
 }
