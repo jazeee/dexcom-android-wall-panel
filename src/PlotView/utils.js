@@ -35,3 +35,25 @@ export const extractData = reading => {
     isInRange: !isHigh && !isLow,
   };
 };
+
+export const getIconName = trend => {
+  // https://materialdesignicons.com/
+  switch (trend) {
+    case 1:
+      return 'arrow-up-thick';
+    case 2:
+      return 'arrow-up';
+    case 3:
+      return 'arrow-top-right';
+    case 4:
+      return 'arrow-right';
+    case 5:
+      return 'arrow-bottom-right';
+    case 6:
+      return 'arrow-down';
+    case 7:
+      return 'arrow-down-thick';
+    default:
+      return 'question';
+  }
+};

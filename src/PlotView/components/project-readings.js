@@ -73,7 +73,7 @@ export const projectReadings = readingData => {
       timeSinceLastReadingInSeconds,
       timeSinceLastReadingInMinutes: timeSinceLastReadingInSeconds / 60,
       isProjected: true,
-      index,
+      projectedIndex: index,
     });
   }
   return projectedReadings;

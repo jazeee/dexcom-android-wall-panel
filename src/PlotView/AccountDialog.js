@@ -12,7 +12,6 @@ type Props = {
   username: string,
   password: string,
   setCreds: (string, string) => any,
-  isSetupDialogVisible: boolean,
   setIsSetupDialogVisible: boolean => any,
 };
 
@@ -36,11 +35,10 @@ export default class AccountDialog extends Component<Props, State> {
     this.props.setCreds(username, password);
   };
   render() {
-    const { isSetupDialogVisible } = this.props;
     const { username, password } = this.state;
     return (
       <View>
-        <Dialog.Container visible={isSetupDialogVisible}>
+        <Dialog.Container visible>
           <Dialog.Title>Account</Dialog.Title>
           <Dialog.Description>Enter Credentials.</Dialog.Description>
           <Dialog.Input

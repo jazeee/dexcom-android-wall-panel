@@ -1,5 +1,4 @@
 /**
- * Sample React Native App
  * https://github.com/facebook/react-native
  *
  * @format
@@ -9,30 +8,9 @@
 
 import React from 'react';
 import KeepAwake from 'react-native-keep-awake';
-import { createAppContainer } from 'react-navigation';
-import { createStackNavigator } from 'react-navigation-stack';
-
-import { COLORS } from './common/colors';
-import Home from './Home/Home';
-import PlotView from './PlotView/PlotView';
-
-const AppNavigator = createStackNavigator(
-  {
-    Home: { screen: Home },
-    PlotView: { screen: PlotView },
-  },
-  {
-    initialRouteName: 'PlotView',
-    defaultNavigationOptions: {
-      headerStyle: {
-        backgroundColor: '#000',
-      },
-      headerTintColor: COLORS.primary,
-    },
-  },
-);
-
-const AppContainer = createAppContainer(AppNavigator);
+import SettingsWrapper from './UserSettings/SettingsWrapper';
+import PlotStack from './AppContainer/PlotStack';
+import 'react-native-gesture-handler';
 
 export default class App extends React.Component {
   constructor(props) {
@@ -40,6 +18,10 @@ export default class App extends React.Component {
     KeepAwake.activate();
   }
   render() {
-    return <AppContainer />;
+    return (
+      <SettingsWrapper>
+        <PlotStack />
+      </SettingsWrapper>
+    );
   }
 }
