@@ -12,9 +12,9 @@ import KeepAwake from 'react-native-keep-awake';
 import { createAppContainer } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
 
-import { COLORS } from './src/common/colors';
-import Home from './src/Home/Home';
-import PlotView from './src/PlotView/PlotView';
+import { COLORS } from './common/colors';
+import Home from './Home/Home';
+import PlotView from './PlotView/PlotView';
 
 const AppNavigator = createStackNavigator(
   {
