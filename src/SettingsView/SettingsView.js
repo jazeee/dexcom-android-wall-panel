@@ -4,6 +4,7 @@ import { View, Text, Button, StyleSheet } from 'react-native';
 import { COLORS } from '../common/colors';
 import FormTextInput from './components/FormTextInput';
 import SourceUrlPicker from './components/SourceUrlPicker';
+import { isTestApi } from '../UserSettings/utils';
 
 import { saveSettings } from '../UserSettings/storage';
 
@@ -24,6 +25,7 @@ class SettingsView extends Component {
 
   render() {
     const { username, password, sourceUrl } = this.state;
+    const usingTestApi = isTestApi(sourceUrl);
     return (
       <View style={styles.form}>
         <Text style={styles.header}>Source</Text>
@@ -34,26 +36,30 @@ class SettingsView extends Component {
             setSourceUrl={sourceUrl => this.setState({ sourceUrl })}
           />
         </View>
-        <Text style={styles.header}>Account</Text>
-        <View style={styles.formField}>
-          <Text style={styles.label}>User Name:</Text>
-          <FormTextInput
-            placeholder="Username"
-            value={username}
-            autoComplete="username"
-            setValue={username => this.setState({ username })}
-          />
-        </View>
-        <View style={styles.formField}>
-          <Text style={styles.label}>Password: </Text>
-          <FormTextInput
-            placeholder="Password"
-            value={password}
-            autoComplete="password"
-            secureTextEntry
-            setValue={password => this.setState({ password })}
-          />
-        </View>
+        {!usingTestApi && (
+          <>
+            <Text style={styles.header}>Account</Text>
+            <View style={styles.formField}>
+              <Text style={styles.label}>User Name:</Text>
+              <FormTextInput
+                placeholder="Username"
+                value={username}
+                autoComplete="username"
+                setValue={username => this.setState({ username })}
+              />
+            </View>
+            <View style={styles.formField}>
+              <Text style={styles.label}>Password: </Text>
+              <FormTextInput
+                placeholder="Password"
+                value={password}
+                autoComplete="password"
+                secureTextEntry
+                setValue={password => this.setState({ password })}
+              />
+            </View>
+          </>
+        )}
         <Button onPress={this.onAccept} title="Accept" />
       </View>
     );

@@ -3,7 +3,7 @@ import { AsyncStorage } from 'react-native';
 const SETTING_PROPS = [
   {
     name: 'username',
-    defaultValue: 'sample',
+    defaultValue: '',
   },
   {
     name: 'password',
@@ -11,7 +11,7 @@ const SETTING_PROPS = [
   },
   {
     name: 'sourceUrl',
-    defaultValue: 'https://jazcom.jazeee.com/dx-2',
+    defaultValue: 'https://jazcom.jazeee.com/sample3',
   },
 ];
 
