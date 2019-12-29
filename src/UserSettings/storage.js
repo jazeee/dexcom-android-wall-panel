@@ -9,6 +9,10 @@ const SETTING_PROPS = [
     name: 'password',
     defaultValue: '',
   },
+  {
+    name: 'sourceUrl',
+    defaultValue: 'https://jazcom.jazeee.com/dx-2',
+  },
 ];
 
 export const extractSettingsFromArray = settingProps => {

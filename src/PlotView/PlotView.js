@@ -4,16 +4,15 @@
  * @lint-ignore-every XPLATJSCOPYRIGHT1
  */
 
-import React, { Component, Fragment } from 'react';
-import { StyleSheet, Text, Button, ScrollView, View } from 'react-native';
+import React, { Component } from 'react';
+import { StyleSheet, Text, ScrollView, View } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import { COLORS } from '../common/colors';
-import { SettingsConsumer } from '../UserSettings/context';
-import DateTime from '../common/components/DateTime';
 import { extractDate, getIconName } from './utils';
+import { DEFAULT_META } from './constants';
 import GlucoseGraph from './components/GlucoseGraph.js';
-import { safePlayAudio } from './playAudio';
+import { playAudioIfNeeded } from './playAudio';
 
 const plotMargin = 4;
 const plotMarginX2 = plotMargin * 2;
@@ -21,7 +20,7 @@ const EXTRA_LATENCY_IN_SECONDS = 10 + 10 * Math.random();
 type Props = {};
 
 type State = {
-  sourceUrls: object,
+  apiUrls: object,
   value: number,
   trend: number,
   timeSinceLastReadingInSeconds: number,
@@ -30,14 +29,13 @@ type State = {
   response: '',
   width: number,
   height: number,
+  plotSettings: {},
 };
 
-const DEFAULT_SOURCE = 'dx';
-const LOW_ALARM_VALUE = 55;
 // See https://github.com/facebook/react-native/issues/12981
 console.ignoredYellowBox = ['Setting a timer'];
 
-class PlotView extends Component<Props, State> {
+export default class PlotView extends Component<Props, State> {
   constructor(props) {
     super(props);
     this.state = {
@@ -46,12 +44,12 @@ class PlotView extends Component<Props, State> {
       timeSinceLastReadingInSeconds: undefined,
       isOldReading: undefined,
       response: '',
-      sourceUrls: {},
+      apiUrls: null,
       isSetupDialogVisible: false,
+      plotSettings: DEFAULT_META,
     };
     this.authKey = '';
     this.lastUpdatedAuthKey = 0;
-    this.lastAlarmTime = 0;
     this.lastTimeoutId = 0;
     this.failureCount = 0;
   }
@@ -66,10 +64,11 @@ class PlotView extends Component<Props, State> {
     const { state } = this.props;
     if (
       prevState.username !== state.username ||
-      prevState.password !== state.password
+      prevState.password !== state.password ||
+      prevState.sourceUrl !== state.sourceUrl
     ) {
       this.setState(
-        { readings: [], value: 0, isOldReading: true },
+        { readings: [], value: 0, apiUrls: null, response: 'Loading...' },
         this.getData.bind(this, true),
       );
     }
@@ -83,31 +82,23 @@ class PlotView extends Component<Props, State> {
     this.lastTimeoutId = 0;
   };
 
-  getUrls = async (source = DEFAULT_SOURCE) => {
+  getApiUrls = async sourceUrl => {
     return new Promise(async (resolve, reject) => {
       try {
-        const response = await fetch(
-          `https://jazcom.jazeee.com/${source}/urls.json`,
-        );
+        console.log(`Requesting from ${sourceUrl}`);
+        const response = await fetch(`${sourceUrl}/urls.json`);
         const { status } = response;
         if (status !== 200) {
           throw new Error(await response.text());
         }
-        const urls = await response.json();
-        if (!urls) {
+        const apiUrls = await response.json();
+        if (!apiUrls) {
           throw new Error('No URL JSON content');
         }
-        this.setState(
-          ({ sourceUrls }) => ({
-            sourceUrls: {
-              ...sourceUrls,
-              [source]: urls,
-            },
-          }),
-          () => {
-            resolve(urls);
-          },
-        );
+        console.debug('Got API Urls', apiUrls);
+        this.setState({ apiUrls }, () => {
+          resolve(apiUrls);
+        });
       } catch (error) {
         this.setState({ response: error.toString() });
         reject(error);
@@ -119,23 +110,26 @@ class PlotView extends Component<Props, State> {
     if (!this.isThisMounted) {
       return;
     }
-    const { username, password } = this.props.state;
+    const { username, password, sourceUrl } = this.props.state;
     if (!username || !password) {
       this.setState({ response: 'Need username and password!' });
       this.props.navigation.navigate('SettingsView');
       return;
     }
+    if (!sourceUrl) {
+      this.setState({ response: 'Need source!' });
+      this.props.navigation.navigate('SettingsView');
+      return;
+    }
     let delayToNextRequestInSeconds = 5 * 60;
-    const currentTime = new Date().getTime();
+    const currentTime = Date.now();
     try {
-      const { sourceUrls } = this.state;
-      const isSampleUser = username.startsWith('sample');
-      const source = isSampleUser ? username : DEFAULT_SOURCE;
-      let urls = sourceUrls[source];
-      if (!urls) {
-        urls = await this.getUrls(source);
+      let { apiUrls } = this.state;
+      const isSampleUser = sourceUrl && sourceUrl.includes('sample');
+      if (!apiUrls) {
+        apiUrls = await this.getApiUrls(sourceUrl);
       }
-      const { auth: authReq, data: dataReq } = urls;
+      const { auth: authReq, data: dataReq, meta = DEFAULT_META } = apiUrls;
       if (
         forceReload ||
         currentTime - this.lastUpdatedAuthKey > 45 * 60 * 1000
@@ -196,18 +190,16 @@ class PlotView extends Component<Props, State> {
         return;
       }
       this.setState({
-        response: `Success for user: ${username}`,
+        response: `Success for user: ${isSampleUser ? 'Test user' : username}`,
         trend,
         value,
         timeSinceLastReadingInSeconds,
         isOldReading,
         readings,
+        plotSettings: meta,
       });
-      if (!isOldReading && value <= LOW_ALARM_VALUE) {
-        if (currentTime - this.lastAlarmTime >= 30 * 60 * 1000) {
-          this.lastAlarmTime = currentTime;
-          safePlayAudio('eat_please.mp3');
-        }
+      if (!isOldReading) {
+        playAudioIfNeeded(value, meta);
       }
       delayToNextRequestInSeconds = 5 * 60 - timeSinceLastReadingInSeconds;
       delayToNextRequestInSeconds =
@@ -240,6 +232,7 @@ class PlotView extends Component<Props, State> {
       isOldReading,
       width,
       height,
+      plotSettings,
     } = this.state;
     return (
       <View
@@ -259,6 +252,7 @@ class PlotView extends Component<Props, State> {
               width={width - plotMarginX2}
               height={height - plotMarginX2}
               readings={readings}
+              plotSettings={plotSettings}
             />
             <Text style={styles.overlayContent}>Loading...</Text>
           </View>
@@ -291,35 +285,6 @@ class PlotView extends Component<Props, State> {
     );
   }
 }
-
-const WrappedPlotView = props => {
-  return (
-    <SettingsConsumer>
-      {({ state }) => <PlotView {...props} state={state} />}
-    </SettingsConsumer>
-  );
-};
-
-WrappedPlotView.navigationOptions = ({ navigation }) => {
-  return {
-    headerTitle: () => (
-      <Fragment>
-        <DateTime style={styles.dateTime} />
-      </Fragment>
-    ),
-    headerRight: (
-      <Fragment>
-        <Button
-          color={COLORS.primary}
-          onPress={() => navigation.navigate('SettingsView')}
-          title="Settings"
-        />
-      </Fragment>
-    ),
-  };
-};
-
-export default WrappedPlotView;
 
 const styles = StyleSheet.create({
   container: {

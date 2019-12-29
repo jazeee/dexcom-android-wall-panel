@@ -4,13 +4,14 @@ import SvgText from './SvgText';
 
 type Props = {
   y: number,
+  units: string,
   width: number,
   color: string,
   value: string,
 };
 
 const AxisLine = (props: Props) => {
-  const { y, width, value, color } = props;
+  const { y, width, value, units, color } = props;
   return (
     <>
       <Line
@@ -23,7 +24,7 @@ const AxisLine = (props: Props) => {
         opacity={0.5}
       />
       <SvgText x={0} y={y} color={color}>
-        {value}
+        {value} {units}
       </SvgText>
     </>
   );
