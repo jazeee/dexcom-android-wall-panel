@@ -10,9 +10,9 @@ import { createAppContainer } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
 
 import { COLORS } from '../common/colors';
-import SettingsView from '../UserSettings/SettingsView';
-import Home from '../Home/Home';
-import PlotView from '../PlotView/PlotView';
+import SettingsView from '../SettingsView';
+import Home from '../Home';
+import PlotView from '../PlotView';
 
 const PlotStackNavigator = createStackNavigator(
   {

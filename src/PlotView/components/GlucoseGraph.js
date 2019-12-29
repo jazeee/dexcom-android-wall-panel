@@ -17,20 +17,27 @@ type Props = {
   readings: PropTypes.array,
   width: 0,
   height: 0,
+  plotSettings: object,
 };
 
 type State = {};
 
-const MIN_Y_VALUE = 30;
-const MAX_Y_VALUE = 250;
 const FUTURE_TIME_IN_SECONDS = 40 * 60;
 
 export default class GlucoseGraph extends Component<Props, State> {
   render() {
-    const { width, height, readings } = this.props;
-    if (!width || !height || !readings || !readings.length) {
+    const { width, height, readings, plotSettings } = this.props;
+    if (!width || !height || !readings || !readings.length || !plotSettings) {
       return null;
     }
+    const {
+      minScale, //: 30,
+      lowAxis, //: 70,
+      highAxis, //: 140,
+      higherAxis, //: 160,
+      maxScale, //: 250,
+      units, // 'mg/dL'
+    } = plotSettings;
     const calcTimePosition = value => {
       if (width < 300) {
         // Leave enough space for 20 minutes of future data.
@@ -40,12 +47,12 @@ export default class GlucoseGraph extends Component<Props, State> {
       return width - (value + FUTURE_TIME_IN_SECONDS) / 20;
     };
     const calcValuePosition = value => {
-      let heightRatio = 1 - (value - MIN_Y_VALUE) / (MAX_Y_VALUE - MIN_Y_VALUE);
+      let heightRatio = 1 - (value - minScale) / (maxScale - minScale);
       heightRatio = Math.max(0, heightRatio);
       heightRatio = Math.min(1, heightRatio);
       return height * heightRatio;
     };
-    const readingData = readings.map(extractData);
+    const readingData = readings.map(extractData.bind(null, plotSettings));
     const [lastReadingDatum] = readingData;
     const { color: lastReadingColor, isInRange } = lastReadingDatum;
     const projectedReadings = projectReadings(readingData);
@@ -70,22 +77,25 @@ export default class GlucoseGraph extends Component<Props, State> {
           opacity={isInRange ? 0.2 : 0.5}
         />
         <AxisLine
-          y={calcValuePosition(70)}
+          y={calcValuePosition(lowAxis)}
+          units={units}
           width={width}
           color="red"
-          value={70}
+          value={lowAxis}
         />
         <AxisLine
-          y={calcValuePosition(140)}
+          y={calcValuePosition(highAxis)}
+          units={units}
           width={width}
           color="#666"
-          value={140}
+          value={highAxis}
         />
         <AxisLine
-          y={calcValuePosition(160)}
+          y={calcValuePosition(higherAxis)}
+          units={units}
           width={width}
           color="yellow"
-          value={160}
+          value={higherAxis}
         />
         {[...readingData, ...projectedReadings].map((datum, index) => {
           const {
@@ -100,7 +110,7 @@ export default class GlucoseGraph extends Component<Props, State> {
           const y = calcValuePosition(value);
           const textAnchor = (width - x) / width < 0.1 ? 'end' : 'middle';
           return (
-            <>
+            <React.Fragment key={index}>
               <Circle
                 key={index}
                 cx={x}
@@ -123,7 +133,7 @@ export default class GlucoseGraph extends Component<Props, State> {
                   {value}
                 </SvgText>
               )}
-            </>
+            </React.Fragment>
           );
         })}
         {dateAxisValues.map(axis => {

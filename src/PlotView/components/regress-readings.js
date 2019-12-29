@@ -33,12 +33,14 @@ export const projectReadings = readingData => {
       precision: 8,
     },
   );
-  if (rSquared < 0.8) {
+  const [acceleration, slope] = coefficients;
+  if ((rSquared < 0.8 && Math.abs(acceleration) > 1e-5) || rSquared < 0.5) {
     // Scan for anomalies - do not provide projected data if there are odd steps.
-    console.debug(`Not projecting data due to low rSquared: ${rSquared}`);
+    console.debug(
+      `Not projecting data due to low rSquared: ${rSquared} with coefficients: ${coefficients}`,
+    );
     return [];
   }
-  const [acceleration, slope] = coefficients;
   const [latestDatum] = readingData;
   const {
     value: latestValue,

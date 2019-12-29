@@ -8,7 +8,7 @@
 
 import React from 'react';
 import KeepAwake from 'react-native-keep-awake';
-import SettingsWrapper from './UserSettings/SettingsWrapper';
+import SettingsState from './UserSettings/SettingsState';
 import PlotStack from './AppContainer/PlotStack';
 import 'react-native-gesture-handler';
 
@@ -19,9 +19,9 @@ export default class App extends React.Component {
   }
   render() {
     return (
-      <SettingsWrapper>
+      <SettingsState>
         <PlotStack />
-      </SettingsWrapper>
+      </SettingsState>
     );
   }
 }
