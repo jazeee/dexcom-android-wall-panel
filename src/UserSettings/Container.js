@@ -22,7 +22,7 @@ export const generateViewContainer = ({ View, Header }) => {
           <DateTime style={styles.dateTime} />
         </>
       ),
-      headerRight: <Header navigation={navigation} />,
+      headerRight: Header ? <Header navigation={navigation} /> : null,
     };
   };
 

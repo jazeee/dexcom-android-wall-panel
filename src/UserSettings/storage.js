@@ -3,7 +3,7 @@ import { AsyncStorage } from 'react-native';
 const SETTING_PROPS = [
   {
     name: 'username',
-    defaultValue: 'sample',
+    defaultValue: '',
   },
   {
     name: 'password',
@@ -11,7 +11,11 @@ const SETTING_PROPS = [
   },
   {
     name: 'sourceUrl',
-    defaultValue: 'https://jazcom.jazeee.com/dx-2',
+    defaultValue: 'https://jazcom.jazeee.com/sample3',
+  },
+  {
+    name: 'initialVisitState',
+    defaultValue: 'NEVER_OPENED',
   },
 ];
 
@@ -31,6 +35,11 @@ export const saveSettings = async settings => {
     return await AsyncStorage.setItem(`@jazcom:${name}`, settings[name]);
   });
   return Promise.all(promises);
+};
+
+export const saveSettingsState = async (state, setState) => {
+  await saveSettings(state);
+  await setState(state);
 };
 
 export const loadSettings = async () => {

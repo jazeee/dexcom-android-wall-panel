@@ -4,8 +4,10 @@ import { View, Text, Button, StyleSheet } from 'react-native';
 import { COLORS } from '../common/colors';
 import FormTextInput from './components/FormTextInput';
 import SourceUrlPicker from './components/SourceUrlPicker';
+import { isTestApi } from '../UserSettings/utils';
 
-import { saveSettings } from '../UserSettings/storage';
+import { saveSettingsState } from '../UserSettings/storage';
+import { VISITED_SETTINGS_VIEW } from './constants';
 
 class SettingsView extends Component {
   constructor(props) {
@@ -15,15 +17,22 @@ class SettingsView extends Component {
     };
   }
 
+  componentDidMount() {
+    const { state, setState } = this.props;
+    saveSettingsState(
+      { ...state, initialVisitState: VISITED_SETTINGS_VIEW },
+      setState,
+    );
+  }
+
   onAccept = async () => {
-    await saveSettings(this.state);
-    console.log(this.state);
-    await this.props.setState(this.state);
+    await saveSettingsState(this.state, this.props.setState);
     this.props.navigation.navigate('PlotView');
   };
 
   render() {
     const { username, password, sourceUrl } = this.state;
+    const usingTestApi = isTestApi(sourceUrl);
     return (
       <View style={styles.form}>
         <Text style={styles.header}>Source</Text>
@@ -34,26 +43,30 @@ class SettingsView extends Component {
             setSourceUrl={sourceUrl => this.setState({ sourceUrl })}
           />
         </View>
-        <Text style={styles.header}>Account</Text>
-        <View style={styles.formField}>
-          <Text style={styles.label}>User Name:</Text>
-          <FormTextInput
-            placeholder="Username"
-            value={username}
-            autoComplete="username"
-            setValue={username => this.setState({ username })}
-          />
-        </View>
-        <View style={styles.formField}>
-          <Text style={styles.label}>Password: </Text>
-          <FormTextInput
-            placeholder="Password"
-            value={password}
-            autoComplete="password"
-            secureTextEntry
-            setValue={password => this.setState({ password })}
-          />
-        </View>
+        {!usingTestApi && (
+          <>
+            <Text style={styles.header}>Account</Text>
+            <View style={styles.formField}>
+              <Text style={styles.label}>User Name:</Text>
+              <FormTextInput
+                placeholder="Username"
+                value={username}
+                autoComplete="username"
+                setValue={username => this.setState({ username })}
+              />
+            </View>
+            <View style={styles.formField}>
+              <Text style={styles.label}>Password: </Text>
+              <FormTextInput
+                placeholder="Password"
+                value={password}
+                autoComplete="password"
+                secureTextEntry
+                setValue={password => this.setState({ password })}
+              />
+            </View>
+          </>
+        )}
         <Button onPress={this.onAccept} title="Accept" />
       </View>
     );
