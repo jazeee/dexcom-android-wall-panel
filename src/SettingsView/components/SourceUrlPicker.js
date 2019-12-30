@@ -26,28 +26,31 @@ class SourceUrlPicker extends Component<Props, State> {
       const response = await fetch(
         'https://jazcom.jazeee.com/api-sources/urls.json',
       );
+      this.setState({ loadingMessage: 'Loaded...' });
       if (response.status !== 200) {
         throw new Error('Unable to load sources');
       }
-      const apiSourceUrls = (await response.json()).sources;
+      const urlContainer = await response.json();
+      const { sources: apiSourceUrls } = urlContainer || {};
       console.debug('****Loaded****', apiSourceUrls);
-      this.setState({ apiSourceUrls, loadingMessage: 'Loaded' });
+      this.setState({ apiSourceUrls, loadingMessage: 'Done' });
+      // this.setState({ apiSourceUrls, loadingMessage: JSON.stringify(apiSourceUrls) })
     } catch (error) {
       console.debug(error);
-      this.setState({ loadingMessage: 'Check network' });
+      this.setState({ loadingMessage: error.toString() });
     }
   };
 
   render() {
-    const { apiSourceUrls } = this.state;
+    const { apiSourceUrls, loadingMessage } = this.state;
     const { sourceUrl: currentSourceUrl, setSourceUrl } = this.props;
     return (
       <>
+        {loadingMessage ? <Text>{loadingMessage}</Text> : null}
         <FlatList
           style={styles.sourceUrls}
           data={apiSourceUrls.map(source => {
             const { name, sourceUrl } = source;
-            console.log(currentSourceUrl, source);
             return {
               key: name,
               sourceUrl,
@@ -56,7 +59,7 @@ class SourceUrlPicker extends Component<Props, State> {
           renderItem={({ item }) => {
             const { key, sourceUrl } = item;
             const isSelected = currentSourceUrl === sourceUrl;
-            const style = isSelected ? styles.selectedApi : '';
+            const style = isSelected ? styles.selectedApi : {};
             return (
               <Text
                 style={{
