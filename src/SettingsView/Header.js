@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, Button, StyleSheet } from 'react-native';
+import { Text, StyleSheet } from 'react-native';
 
 import { COLORS } from '../common/colors';
 
@@ -7,15 +7,8 @@ const Header = props => {
   const { navigation } = props;
   return (
     <>
-      <Button
-        color={COLORS.primary}
-        onPress={() => navigation.navigate('PlotView')}
-        title="Cancel and Open Plot"
-      />
-      <Text
-        style={styles.homeButton}
-        onPress={() => navigation.navigate('Home')}>
-        Cancel/Home
+      <Text style={styles.homeButton} onPress={() => navigation.goBack()}>
+        Cancel
       </Text>
     </>
   );

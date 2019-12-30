@@ -6,7 +6,8 @@ import FormTextInput from './components/FormTextInput';
 import SourceUrlPicker from './components/SourceUrlPicker';
 import { isTestApi } from '../UserSettings/utils';
 
-import { saveSettings } from '../UserSettings/storage';
+import { saveSettingsState } from '../UserSettings/storage';
+import { VISITED_SETTINGS_VIEW } from './constants';
 
 class SettingsView extends Component {
   constructor(props) {
@@ -16,10 +17,16 @@ class SettingsView extends Component {
     };
   }
 
+  componentDidMount() {
+    const { state, setState } = this.props;
+    saveSettingsState(
+      { ...state, initialVisitState: VISITED_SETTINGS_VIEW },
+      setState,
+    );
+  }
+
   onAccept = async () => {
-    await saveSettings(this.state);
-    console.log(this.state);
-    await this.props.setState(this.state);
+    await saveSettingsState(this.state, this.props.setState);
     this.props.navigation.navigate('PlotView');
   };
 
