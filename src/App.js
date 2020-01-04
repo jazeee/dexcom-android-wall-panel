@@ -10,6 +10,7 @@ import React from 'react';
 import KeepAwake from 'react-native-keep-awake';
 import SettingsState from './UserSettings/SettingsState';
 import AppContainer from './AppContainer';
+import ErrorBoundary from 'react-native-error-boundary';
 import 'react-native-gesture-handler';
 
 export default class App extends React.Component {
@@ -19,9 +20,11 @@ export default class App extends React.Component {
   }
   render() {
     return (
-      <SettingsState>
-        <AppContainer />
-      </SettingsState>
+      <ErrorBoundary>
+        <SettingsState>
+          <AppContainer />
+        </SettingsState>
+      </ErrorBoundary>
     );
   }
 }

@@ -55,7 +55,7 @@ export default class GlucoseGraph extends Component<Props, State> {
     const readingData = readings.map(extractData.bind(null, plotSettings));
     const [lastReadingDatum] = readingData;
     const { color: lastReadingColor, isInRange } = lastReadingDatum;
-    const projectedReadings = projectReadings(readingData);
+    const projectedReadings = projectReadings(readingData, highAxis);
     const dateAxisValues = [];
     const now = Date.now();
     for (let i = 0; i <= 5 * 60; i += 60) {

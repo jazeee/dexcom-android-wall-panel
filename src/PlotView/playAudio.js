@@ -1,5 +1,5 @@
 export const playAudio = (audioName: string, volume = 1.0) => {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     resolve(true);
   });
 };

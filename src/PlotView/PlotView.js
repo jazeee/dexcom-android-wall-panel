@@ -276,7 +276,7 @@ export default class PlotView extends Component<Props, State> {
             )}
             <Icon name={getIconName(trend)} size={width > 480 ? 120 : 80} />
             {(trend === 1 || trend === 7) && (
-              <Icon name={this.getIconName()} size={width > 480 ? 120 : 80} />
+              <Icon name={getIconName()} size={width > 480 ? 120 : 80} />
             )}
           </Text>
         </ScrollView>

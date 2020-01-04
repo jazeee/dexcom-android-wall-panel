@@ -26,7 +26,7 @@ class SourceUrlPicker extends Component<Props, State> {
       const response = await fetch(
         'https://jazcom.jazeee.com/api-sources/urls.json',
       );
-      this.setState({ loadingMessage: 'Loaded...'});
+      this.setState({ loadingMessage: 'Loaded...' });
       if (response.status !== 200) {
         throw new Error('Unable to load sources');
       }
@@ -46,7 +46,7 @@ class SourceUrlPicker extends Component<Props, State> {
     const { sourceUrl: currentSourceUrl, setSourceUrl } = this.props;
     return (
       <>
-        {loadingMessage ? <Text>{loadingMessage}</Text>: null}
+        {loadingMessage ? <Text>{loadingMessage}</Text> : null}
         <FlatList
           style={styles.sourceUrls}
           data={apiSourceUrls.map(source => {

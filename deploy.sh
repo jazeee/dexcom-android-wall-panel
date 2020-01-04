@@ -1,3 +1,3 @@
 #!/bin/bash
 
-adb install -f android/app/build/outputs/apk/release/app-release.apk
+adb install -rf android/app/build/outputs/apk/release/app-release.apk
