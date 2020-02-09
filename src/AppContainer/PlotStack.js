@@ -13,12 +13,14 @@ import { COLORS } from '../common/colors';
 import SettingsView from '../SettingsView';
 import Home from '../Home';
 import PlotView from '../PlotView';
+import AudioTest from '../PlotView/AudioTest';
 
 const PlotStackNavigator = createStackNavigator(
   {
     Home: { screen: Home },
     SettingsView: { screen: SettingsView },
     PlotView: { screen: PlotView },
+    AudioTest: { screen: AudioTest },
   },
   {
     initialRouteName: 'Home',

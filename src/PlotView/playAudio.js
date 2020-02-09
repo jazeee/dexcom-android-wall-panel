@@ -2,13 +2,33 @@ import Sound from 'react-native-sound';
 
 Sound.setCategory('Playback');
 
-export const playAudio = (audioName: string, volume = 1.0) => {
+const soundPlayers = {};
+
+const createSoundPlayer = (audioName: string) => {
   return new Promise((resolve, reject) => {
-    const sound = new Sound(audioName, Sound.MAIN_BUNDLE, error => {
+    const newSound = new Sound(audioName, Sound.MAIN_BUNDLE, error => {
       if (error) {
         return reject(error);
       }
-      sound.setVolume(volume).play(resolve);
+    });
+    resolve(newSound);
+  });
+};
+['eat_please.mp3', 'high_alert.mp3'].forEach(audioName => {
+  soundPlayers[audioName] = createSoundPlayer(audioName);
+});
+
+let playCount = 0;
+export const playAudio = (audioName: string, volume = 1.0) => {
+  let soundPlayer = soundPlayers[audioName];
+  if (!soundPlayer) {
+    soundPlayer = createSoundPlayer(audioName);
+  }
+  soundPlayers[audioName] = soundPlayer;
+  return soundPlayer.then(player => {
+    return new Promise(resolve => {
+      console.log(`Played sound ${++playCount} times`);
+      player.setVolume(volume).play(resolve);
     });
   });
 };
