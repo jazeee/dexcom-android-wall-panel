@@ -20,6 +20,7 @@ type Props = {
 
 export default function Overlay(props: Props) {
   const { width, height, value, trend, isOldReading } = props;
+  const isLarge = width > 480 && height > 360;
   return (
     <ScrollView style={styles.innerContainer}>
       <Text
@@ -27,15 +28,15 @@ export default function Overlay(props: Props) {
           // eslint-disable-next-line react-native/no-inline-styles
           {
             ...styles.value,
-            fontSize: 180 - (width > 480 && height > 360 ? 0 : 80),
+            fontSize: 180 - (isLarge ? 0 : 80),
             color: isOldReading ? '#666' : COLORS.primary,
           }
         }>
         {value ? value : '-'}{' '}
-        {isOldReading && <Icon name="question" size={width > 480 ? 120 : 80} />}
-        <Icon name={getIconName(trend)} size={width > 480 ? 120 : 80} />
+        {isOldReading && <Icon name="question" size={isLarge ? 120 : 60} />}
+        <Icon name={getIconName(trend)} size={isLarge ? 120 : 60} />
         {(trend === 1 || trend === 7) && (
-          <Icon name={getIconName()} size={width > 480 ? 120 : 80} />
+          <Icon name={getIconName()} size={isLarge ? 120 : 60} />
         )}
       </Text>
     </ScrollView>
