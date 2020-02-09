@@ -5,13 +5,13 @@
  */
 
 import React, { Component } from 'react';
-import { StyleSheet, Text, ScrollView, View } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { COLORS } from '../common/colors';
-import { extractDate, getIconName } from './utils';
+import { extractDate } from './utils';
 import { DEFAULT_META } from './constants';
 import GlucoseGraph from './components/GlucoseGraph.js';
+import Overlay from './components/Overlay.js';
 import { playAudioIfNeeded } from './playAudio';
 import { isTestApi } from '../UserSettings/utils';
 
@@ -171,7 +171,8 @@ export default class PlotView extends Component<Props, State> {
       );
       const { status } = postResult;
       if (status !== 200) {
-        throw new Error(await postResult.text());
+        const error = await postResult.text();
+        throw new Error(`${status}: ${dataReq.url} - ${error}`);
       }
       const readings = await postResult.json();
       const [firstReading] = readings;
@@ -260,26 +261,13 @@ export default class PlotView extends Component<Props, State> {
             <Text style={styles.overlayContent}>Loading...</Text>
           </View>
         )}
-        <ScrollView style={styles.innerContainer}>
-          <Text
-            style={
-              // eslint-disable-next-line react-native/no-inline-styles
-              {
-                ...styles.value,
-                fontSize: 180 - (width > 480 ? 0 : 60),
-                color: isOldReading ? '#666' : COLORS.primary,
-              }
-            }>
-            {value ? value : '-'}{' '}
-            {isOldReading && (
-              <Icon name="question" size={width > 480 ? 120 : 80} />
-            )}
-            <Icon name={getIconName(trend)} size={width > 480 ? 120 : 80} />
-            {(trend === 1 || trend === 7) && (
-              <Icon name={getIconName()} size={width > 480 ? 120 : 80} />
-            )}
-          </Text>
-        </ScrollView>
+        <Overlay
+          width={width}
+          height={height}
+          value={value}
+          trend={trend}
+          isOldReading={isOldReading}
+        />
         <Text style={styles.response}>
           {response}
           {isOldReading && ' Outdated Reading'}
@@ -297,7 +285,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#000',
   },
-  innerContainer: {},
   overlay: {
     position: 'absolute',
     top: plotMargin,
@@ -308,10 +295,6 @@ const styles = StyleSheet.create({
     fontSize: 50,
     color: 'white',
     opacity: 0.2,
-  },
-  value: {
-    fontSize: 180,
-    color: COLORS.primary,
   },
   trend: {
     fontSize: 64,
