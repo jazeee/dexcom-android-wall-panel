@@ -52,17 +52,17 @@ Output like:
 [{
   "DT":"\/Date(1558231462000-0700)\/",
   "ST":"\/Date(1558231462000)\/",
-  "Trend":3,
+  "Trend":"Flat",
   "Value":177,
   "WT":"\/Date(1558231462000)\/"
 },{
   "DT":"\/Date(1558231162000-0700)\/",
   "ST":"\/Date(1558231162000)\/",
-  "Trend":3,
+  "Trend":"Flat",
   "Value":169,
   "WT":"\/Date(1558231162000)\/"
 }...
-DT is device, ST is server. Trend of 4 is flat, 3 is up, 2 is very up, 5 is down, 6 is very down.
+DT is device, ST is server. Trends used to be numbers, like 4 is flat, 3 is up, 2 is very up, 5 is down, 6 is very down. Now are strings.
 ```
 ### Install notes
 Will need a keystore to sign the app. (Must use new file if you forgot the pwd LoL)
