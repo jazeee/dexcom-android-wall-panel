@@ -1,6 +1,12 @@
-import { AsyncStorage } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const SETTING_PROPS = [
+export interface ISettingProp {
+  name: string;
+  defaultValue: string;
+  value?: string | null;
+}
+
+const SETTING_PROPS: ISettingProp[] = [
   {
     name: 'username',
     defaultValue: '',
@@ -19,31 +25,28 @@ const SETTING_PROPS = [
   },
 ];
 
-export const extractSettingsFromArray = settingProps => {
-  const settings = {};
+function extractSettingsFromArray(
+  settingProps: ISettingProp[],
+): Record<string, string> {
+  const settings: Record<string, string> = {};
   settingProps.forEach(({ name, value, defaultValue }) => {
-    settings[name] = value != null ? value : defaultValue;
+    settings[name] = value ?? defaultValue;
   });
   return settings;
-};
+}
 
 export const DEFAULT_SETTINGS = extractSettingsFromArray(SETTING_PROPS);
 
-export const saveSettings = async settings => {
-  const promises = SETTING_PROPS.map(async prop => {
+export async function storeSettings(settings: Record<string, string>) {
+  const promises = SETTING_PROPS.map(async (prop) => {
     const { name } = prop;
     return await AsyncStorage.setItem(`@jazcom:${name}`, settings[name]);
   });
   return Promise.all(promises);
-};
-
-export const saveSettingsState = async (state, setState) => {
-  await saveSettings(state);
-  await setState(state);
-};
+}
 
 export const loadSettings = async () => {
-  const promises = SETTING_PROPS.map(async prop => {
+  const promises = SETTING_PROPS.map(async (prop) => {
     const { name, defaultValue } = prop;
     const value = await AsyncStorage.getItem(`@jazcom:${name}`);
     return { name, value, defaultValue };

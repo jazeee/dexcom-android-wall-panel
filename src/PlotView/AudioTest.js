@@ -8,7 +8,7 @@ import React, { Component } from 'react';
 import { Button, View } from 'react-native';
 import { safePlayAudio } from './playAudio';
 import { generateViewContainer } from '../UserSettings/Container';
-class AudioTest extends Component<> {
+class AudioTest extends Component {
   componentDidMount() {
     setInterval(() => {
       safePlayAudio('eat_please.mp3', 0.5);

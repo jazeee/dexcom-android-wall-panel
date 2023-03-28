@@ -93,9 +93,9 @@ android {
 
     compileSdkVersion rootProject.ext.compileSdkVersion
 
-    namespace "com.jazComDataViewer"
+    namespace "com.jazcomdataviewer"
     defaultConfig {
-        applicationId "com.jazComDataViewer"
+        applicationId "com.jazcomdataviewer"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
