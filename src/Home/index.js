@@ -1,1 +1,1 @@
-export { default } from './Container';
+export { homeRouteConfig } from './routeConfig';

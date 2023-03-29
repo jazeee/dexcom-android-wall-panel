@@ -14,30 +14,32 @@ import GlucoseGraph from './components/GlucoseGraph.js';
 import Overlay from './components/Overlay.js';
 import { playAudioIfNeeded } from './playAudio';
 import { isTestApi } from '../UserSettings/utils';
+import { useSettingsContext } from '../UserSettings/SettingsProvider';
+import { useNavigation } from '@react-navigation/native';
 
 const plotMargin = 4;
 const plotMarginX2 = plotMargin * 2;
 const EXTRA_LATENCY_IN_SECONDS = 10 + 10 * Math.random();
-type Props = {};
+interface Props {}
 
-type State = {
-  apiUrls: object,
-  value: number,
-  trend: number,
-  timeSinceLastReadingInSeconds: number,
-  isOldReading: boolean,
-  readings: PropTypes.array,
-  lastUrl: '',
-  response: '',
-  width: number,
-  height: number,
-  plotSettings: {},
-};
+interface State {
+  apiUrls: object | null;
+  value: number;
+  trend: number;
+  timeSinceLastReadingInSeconds: number | undefined;
+  isOldReading: boolean | undefined;
+  readings?: [];
+  lastUrl: '';
+  response: '';
+  width?: number;
+  height?: number;
+  plotSettings: {};
+}
 
 // See https://github.com/facebook/react-native/issues/12981
 console.ignoredYellowBox = ['Setting a timer'];
 
-export default class PlotView extends Component<Props, State> {
+class PlotView extends Component<Props, State> {
   constructor(props) {
     super(props);
     this.state = {
@@ -48,7 +50,6 @@ export default class PlotView extends Component<Props, State> {
       lastUrl: '',
       response: '',
       apiUrls: null,
-      isSetupDialogVisible: false,
       plotSettings: DEFAULT_META,
     };
     this.authKey = '';
@@ -62,7 +63,7 @@ export default class PlotView extends Component<Props, State> {
     this.getData(true);
   };
 
-  componentDidUpdate = prevProps => {
+  componentDidUpdate = (prevProps) => {
     const { state: prevState } = prevProps;
     const { state } = this.props;
     if (
@@ -85,7 +86,7 @@ export default class PlotView extends Component<Props, State> {
     this.lastTimeoutId = 0;
   };
 
-  getApiUrls = async sourceUrl => {
+  getApiUrls = async (sourceUrl) => {
     return new Promise(async (resolve, reject) => {
       try {
         console.log(`Requesting from ${sourceUrl}`);
@@ -187,7 +188,7 @@ export default class PlotView extends Component<Props, State> {
       const [firstReading] = readings;
       if (usingTestApi) {
         const firstReadingDate = extractDate(firstReading);
-        readings.forEach(reading => {
+        readings.forEach((reading) => {
           const readingDate = extractDate(reading);
           const updatedTimeInMilliseconds =
             Date.now() +
@@ -251,7 +252,7 @@ export default class PlotView extends Component<Props, State> {
     return (
       <View
         style={styles.container}
-        onLayout={event => {
+        onLayout={(event) => {
           const { width, height } = event.nativeEvent.layout;
           this.setState({ width, height });
         }}>
@@ -286,6 +287,12 @@ export default class PlotView extends Component<Props, State> {
       </View>
     );
   }
+}
+
+export default function WrappedPlotView() {
+  const { settings } = useSettingsContext();
+  const navigation = useNavigation();
+  return <PlotView state={settings} navigation={navigation} />;
 }
 
 const styles = StyleSheet.create({

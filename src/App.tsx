@@ -18,15 +18,15 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 
 import { SettingsProvider } from './UserSettings/SettingsProvider';
-import AppContainer from './AppContainer';
 import ErrorBoundary from 'react-native-error-boundary';
+import { AppRoutes } from './AppNavigation/Routes';
 
 export function App(): JSX.Element {
   return (
     <ErrorBoundary>
       <NavigationContainer>
         <SettingsProvider>
-          <AppContainer />
+          <AppRoutes />
         </SettingsProvider>
       </NavigationContainer>
     </ErrorBoundary>

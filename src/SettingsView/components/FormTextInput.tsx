@@ -1,14 +1,14 @@
 import React from 'react';
-import { TextInput, StyleSheet } from 'react-native';
+import { TextInput, StyleSheet, TextInputProps } from 'react-native';
 
 import { COLORS } from '../../common/colors';
 
-type Props = {
-  value: string,
-  setValue: (value: string) => {},
-};
+interface Props extends TextInputProps {
+  value: string;
+  setValue: (value: string) => void;
+}
 
-const FormTextInput = (props: Props) => {
+export const FormTextInput = (props: Props) => {
   const { value, setValue, ...otherProps } = props;
   return (
     <TextInput
@@ -21,8 +21,6 @@ const FormTextInput = (props: Props) => {
     />
   );
 };
-
-export default FormTextInput;
 
 const styles = StyleSheet.create({
   textInput: {
