@@ -3,7 +3,7 @@ import { Text, Button, StyleSheet } from 'react-native';
 
 import { COLORS } from '../common/colors';
 
-const Header = props => {
+export const PlotViewHeaderButtons = (props: any) => {
   const { navigation } = props;
   return (
     <>
@@ -21,7 +21,7 @@ const Header = props => {
   );
 };
 
-export default Header;
+export default PlotViewHeaderButtons;
 
 const styles = StyleSheet.create({
   homeButton: {
