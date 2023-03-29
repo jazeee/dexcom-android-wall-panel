@@ -3,7 +3,7 @@ import { View, Text, Button, StyleSheet } from 'react-native';
 
 import { COLORS } from '../common/colors';
 import { FormTextInput } from './components/FormTextInput';
-import SourceUrlPicker from './components/SourceUrlPicker';
+import { SourceUrlPicker } from './components/SourceUrlPicker';
 import { isTestApi } from '../UserSettings/utils';
 
 import { storeSettings } from '../UserSettings/storage';
