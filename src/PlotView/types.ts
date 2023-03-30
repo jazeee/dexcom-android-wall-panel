@@ -33,6 +33,8 @@ export interface ISummarizedPlotDatum extends IPlotDatumDateProps {
   isInRange: boolean;
   color: string;
   opacity?: number;
+  isProjected?: boolean;
+  projectedIndex?: number;
 }
 
 export interface IPlotSettings {

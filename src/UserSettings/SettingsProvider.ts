@@ -1,29 +1,33 @@
+import { useQuery } from '@tanstack/react-query';
 import constate from 'constate';
 
-import { useEffect, useState } from 'react';
-
 import { DEFAULT_SETTINGS, loadSettings } from './storage';
+import { SettingName, SettingsStatus } from './types';
 
 function useSettings() {
-  const [settings, setSettings] =
-    useState<Record<string, string>>(DEFAULT_SETTINGS);
-  const [settingsAreLoaded, setSettingsAreLoaded] = useState(false);
+  const settingsQuery = useQuery({
+    queryKey: ['async-settings'],
+    queryFn: loadSettings,
+    onError: (error: Error) => {
+      console.debug('Error in loading settings', error);
+    },
+  });
+  const {
+    data: settings,
+    isLoading: settingsAreLoading,
+    refetch,
+  } = settingsQuery;
 
-  useEffect(() => {
-    loadSettings()
-      .then((newSettings) => {
-        setSettings(newSettings);
-        setSettingsAreLoaded(true);
-      })
-      .catch((error) => {
-        console.debug('Error in loading settings', error);
-      });
-  }, []);
+  const settingsHaveBeenUpdated =
+    settings?.[SettingName.SETTINGS_STATE] === SettingsStatus.UPDATED;
 
   return {
-    settings,
-    setSettings,
-    settingsAreLoaded,
+    settings: settings ?? DEFAULT_SETTINGS,
+    settingsHaveBeenUpdated,
+    settingsAreSet: Boolean(settings),
+    settingsAreLoading,
+    reloadSettings: refetch,
+    settingsQuery,
   };
 }
 

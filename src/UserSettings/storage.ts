@@ -1,33 +1,28 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-export interface ISettingProp {
-  name: string;
-  defaultValue: string;
-  value?: string | null;
-}
+import { ISettingProp, SettingName, SettingsStatus } from './types';
 
 const SETTING_PROPS: ISettingProp[] = [
   {
-    name: 'username',
+    name: SettingName.USERNAME,
     defaultValue: '',
   },
   {
-    name: 'password',
+    name: SettingName.PASSWORD,
     defaultValue: '',
   },
   {
-    name: 'sourceUrl',
+    name: SettingName.SOURCE_URL,
     defaultValue: 'https://jazcom.jazeee.com/sample3',
   },
   {
-    name: 'initialVisitState',
-    defaultValue: 'NEVER_OPENED',
+    name: SettingName.SETTINGS_STATE,
+    defaultValue: SettingsStatus.UNINITIALIZED,
   },
 ];
 
 function extractSettingsFromArray(
   settingProps: ISettingProp[],
-): Record<string, string> {
+): Record<SettingName, string> {
   const settings: Record<string, string> = {};
   settingProps.forEach(({ name, value, defaultValue }) => {
     settings[name] = value ?? defaultValue;
@@ -37,7 +32,7 @@ function extractSettingsFromArray(
 
 export const DEFAULT_SETTINGS = extractSettingsFromArray(SETTING_PROPS);
 
-export async function storeSettings(settings: Record<string, string>) {
+export async function storeSettings(settings: Record<SettingName, string>) {
   const promises = SETTING_PROPS.map(async (prop) => {
     const { name } = prop;
     return await AsyncStorage.setItem(`@jazcom:${name}`, settings[name]);

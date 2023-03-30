@@ -1,3 +1,4 @@
+// @ts-expect-error Ignore untyped package
 import regression from 'regression';
 import { ISummarizedPlotDatum } from '../types';
 
@@ -22,7 +23,7 @@ export function projectReadings(
   }
   const arrayPairs = weightedLastReadings.map(
     ({ value, timeSinceLastReadingInSeconds }) => [
-      timeSinceLastReadingInSeconds,
+      timeSinceLastReadingInSeconds ?? 0,
       value,
     ],
   );
@@ -44,8 +45,14 @@ export function projectReadings(
   );
   const [acceleration, slope] = coefficients;
   const meanSquared = residuals
-    .map(([_, value]) => value ** 2)
-    .reduce((accumulator, x) => accumulator + x, 0);
+    .map(
+      ([
+        ,
+        // @ts-expect-error ignore ts error here for now
+        value,
+      ]) => value ** 2,
+    )
+    .reduce((accumulator: number, x: number) => accumulator + x, 0);
   const rmsResiduals = meanSquared ** 0.5;
   if (rmsResiduals > highAxis / 4) {
     // Scan for anomalies - do not provide projected data if there are odd steps.
