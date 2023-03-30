@@ -1,27 +1,23 @@
-import React from 'react';
+import { useNavigation } from '@react-navigation/native';
 import { Text, Button, StyleSheet } from 'react-native';
 
 import { COLORS } from '../common/colors';
 
-export const PlotViewHeaderButtons = (props: any) => {
-  const { navigation } = props;
+export function PlotViewHeaderButtons() {
+  const { navigate } = useNavigation();
   return (
     <>
       <Button
         color={COLORS.primary}
-        onPress={() => navigation.navigate('SettingsView')}
+        onPress={() => navigate('SettingsView' as never)}
         title="Settings"
       />
-      <Text
-        style={styles.homeButton}
-        onPress={() => navigation.navigate('Home')}>
+      <Text style={styles.homeButton} onPress={() => navigate('Home' as never)}>
         Home
       </Text>
     </>
   );
-};
-
-export default PlotViewHeaderButtons;
+}
 
 const styles = StyleSheet.create({
   homeButton: {

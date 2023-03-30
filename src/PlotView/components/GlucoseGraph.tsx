@@ -1,30 +1,23 @@
-/**
- * @format
- * @flow
- * @lint-ignore-every XPLATJSCOPYRIGHT1
- */
-
-import React, { Component } from 'react';
+import { Component, Fragment } from 'react';
 import Svg, { Circle, Rect } from 'react-native-svg';
-import AxisLine from './AxisLine';
-import VertAxisLine from './VertAxisLine';
-import SvgText from './SvgText';
+import { AxisLine } from './AxisLine';
+import { VertAxisLine } from './VertAxisLine';
+import { SvgText } from './SvgText';
 import { extractData } from '../utils';
 import { projectReadings } from './regress-readings';
 import { format, subMinutes } from 'date-fns';
+import { IPlotDatum, IPlotSettings } from '../types';
 
-type Props = {
-  readings: PropTypes.array,
-  width: 0,
-  height: 0,
-  plotSettings: object,
-};
-
-type State = {};
+interface Props {
+  readings: IPlotDatum[] | undefined;
+  width: number;
+  height: number;
+  plotSettings: IPlotSettings;
+}
 
 const FUTURE_TIME_IN_SECONDS = 40 * 60;
 
-export default class GlucoseGraph extends Component<Props, State> {
+export class GlucoseGraph extends Component<Props> {
   render() {
     const { width, height, readings, plotSettings } = this.props;
     if (!width || !height || !readings || !readings.length || !plotSettings) {
@@ -38,7 +31,7 @@ export default class GlucoseGraph extends Component<Props, State> {
       maxScale, //: 250,
       units, // 'mg/dL'
     } = plotSettings;
-    const calcTimePosition = value => {
+    const calcTimePosition = (value: number) => {
       if (width < 300) {
         // Leave enough space for 20 minutes of future data.
         return width - (value + FUTURE_TIME_IN_SECONDS / 2) / 20;
@@ -46,7 +39,7 @@ export default class GlucoseGraph extends Component<Props, State> {
       // Leave enough space for 40 minutes of future data.
       return width - (value + FUTURE_TIME_IN_SECONDS) / 20;
     };
-    const calcValuePosition = value => {
+    const calcValuePosition = (value: number) => {
       let heightRatio = 1 - (value - minScale) / (maxScale - minScale);
       heightRatio = Math.max(0, heightRatio);
       heightRatio = Math.min(1, heightRatio);
@@ -100,7 +93,7 @@ export default class GlucoseGraph extends Component<Props, State> {
         {[...readingData, ...projectedReadings].map((datum, index) => {
           const {
             value,
-            timeSinceLastReadingInSeconds,
+            timeSinceLastReadingInSeconds = 0,
             color,
             isProjected,
             projectedIndex,
@@ -110,9 +103,8 @@ export default class GlucoseGraph extends Component<Props, State> {
           const y = calcValuePosition(value);
           const textAnchor = (width - x) / width < 0.1 ? 'end' : 'middle';
           return (
-            <React.Fragment key={index}>
+            <Fragment key={index}>
               <Circle
-                key={index}
                 cx={x}
                 cy={y}
                 r="5"
@@ -133,10 +125,10 @@ export default class GlucoseGraph extends Component<Props, State> {
                   {value}
                 </SvgText>
               )}
-            </React.Fragment>
+            </Fragment>
           );
         })}
-        {dateAxisValues.map(axis => {
+        {dateAxisValues.map((axis) => {
           const { x, value } = axis;
           return (
             <VertAxisLine

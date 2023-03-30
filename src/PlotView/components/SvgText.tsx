@@ -1,15 +1,15 @@
-import React from 'react';
-import { Text } from 'react-native-svg';
+import React, { ReactNode } from 'react';
+import { Text, TextProps } from 'react-native-svg';
 
-type Props = {
-  x: number,
-  y: number,
-  yOffset?: number,
-  color: string,
-  children: string,
-};
+interface Props extends TextProps {
+  x: number;
+  y: number;
+  yOffset?: number;
+  color: string;
+  children: ReactNode;
+}
 
-const SvgText = (props: Props) => {
+export function SvgText(props: Props) {
   const { x, y, yOffset = 4, children, color, ...otherProps } = props;
   return (
     <Text
@@ -24,6 +24,4 @@ const SvgText = (props: Props) => {
       {children}
     </Text>
   );
-};
-
-export default SvgText;
+}

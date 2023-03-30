@@ -1,46 +1,48 @@
-/**
- * @format
- * @flow
- * @lint-ignore-every XPLATJSCOPYRIGHT1
- */
-
 import React, { Component } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { COLORS } from '../common/colors';
 import { extractDate } from './utils';
 import { DEFAULT_META } from './constants';
-import GlucoseGraph from './components/GlucoseGraph.js';
-import Overlay from './components/Overlay.js';
+import { GlucoseGraph } from './components/GlucoseGraph';
+import { Overlay } from './components/Overlay';
 import { playAudioIfNeeded } from './playAudio';
 import { isTestApi } from '../UserSettings/utils';
 import { useSettingsContext } from '../UserSettings/SettingsProvider';
 import { useNavigation } from '@react-navigation/native';
+import { IApiUrl, IPlotDatum, IPlotSettings } from './types';
 
 const plotMargin = 4;
 const plotMarginX2 = plotMargin * 2;
 const EXTRA_LATENCY_IN_SECONDS = 10 + 10 * Math.random();
-interface Props {}
+interface Props {
+  state: Record<string, string>;
+  // FIXME refactor
+  navigation: any;
+}
 
 interface State {
-  apiUrls: object | null;
+  apiUrls: IApiUrl | null;
   value: number;
   trend: number;
   timeSinceLastReadingInSeconds: number | undefined;
   isOldReading: boolean | undefined;
-  readings?: [];
-  lastUrl: '';
-  response: '';
-  width?: number;
-  height?: number;
-  plotSettings: {};
+  readings?: IPlotDatum[];
+  lastUrl: string;
+  response: string;
+  width: number;
+  height: number;
+  plotSettings: IPlotSettings;
 }
 
-// See https://github.com/facebook/react-native/issues/12981
-console.ignoredYellowBox = ['Setting a timer'];
-
 class PlotView extends Component<Props, State> {
-  constructor(props) {
+  authKey: string;
+  lastUpdatedAuthKey: number;
+  lastTimeoutId: number;
+  failureCount: number;
+  isThisMounted: boolean | undefined;
+
+  constructor(props: Props) {
     super(props);
     this.state = {
       value: 0,
@@ -51,6 +53,8 @@ class PlotView extends Component<Props, State> {
       response: '',
       apiUrls: null,
       plotSettings: DEFAULT_META,
+      width: 100,
+      height: 100,
     };
     this.authKey = '';
     this.lastUpdatedAuthKey = 0;
@@ -63,7 +67,7 @@ class PlotView extends Component<Props, State> {
     this.getData(true);
   };
 
-  componentDidUpdate = (prevProps) => {
+  componentDidUpdate = (prevProps: Props) => {
     const { state: prevState } = prevProps;
     const { state } = this.props;
     if (
@@ -86,7 +90,7 @@ class PlotView extends Component<Props, State> {
     this.lastTimeoutId = 0;
   };
 
-  getApiUrls = async (sourceUrl) => {
+  getApiUrls = async (sourceUrl: string): Promise<any> => {
     return new Promise(async (resolve, reject) => {
       try {
         console.log(`Requesting from ${sourceUrl}`);
@@ -106,7 +110,7 @@ class PlotView extends Component<Props, State> {
         this.setState({ apiUrls }, () => {
           resolve(apiUrls);
         });
-      } catch (error) {
+      } catch (error: any) {
         this.setState({ response: error.toString() });
         reject(error);
       }
@@ -136,9 +140,13 @@ class PlotView extends Component<Props, State> {
     try {
       let { apiUrls } = this.state;
       if (!apiUrls) {
-        apiUrls = await this.getApiUrls(sourceUrl);
+        apiUrls = (await this.getApiUrls(sourceUrl)) as IApiUrl;
       }
-      const { auth: authReq, data: dataReq, meta = DEFAULT_META } = apiUrls;
+      const {
+        auth: authReq,
+        data: dataReq,
+        meta = DEFAULT_META,
+      } = apiUrls ?? ({} as IApiUrl);
       if (
         forceReload ||
         currentTime - this.lastUpdatedAuthKey > 45 * 60 * 1000
@@ -188,12 +196,12 @@ class PlotView extends Component<Props, State> {
       const [firstReading] = readings;
       if (usingTestApi) {
         const firstReadingDate = extractDate(firstReading);
-        readings.forEach((reading) => {
+        readings.forEach((reading: IPlotDatum) => {
           const readingDate = extractDate(reading);
           const updatedTimeInMilliseconds =
             Date.now() +
-            readingDate.timeInMilliseconds -
-            firstReadingDate.timeInMilliseconds;
+            (readingDate?.timeInMilliseconds ?? 0) -
+            (firstReadingDate?.timeInMilliseconds ?? 0);
           reading.ST = `/Date(${updatedTimeInMilliseconds})/`;
         });
       }
@@ -215,7 +223,8 @@ class PlotView extends Component<Props, State> {
       if (!isOldReading) {
         playAudioIfNeeded(value, meta);
       }
-      delayToNextRequestInSeconds = 5 * 60 - timeSinceLastReadingInSeconds;
+      delayToNextRequestInSeconds =
+        5 * 60 - (timeSinceLastReadingInSeconds ?? 0);
       delayToNextRequestInSeconds =
         Math.max(2 * 60, delayToNextRequestInSeconds) +
         EXTRA_LATENCY_IN_SECONDS;
@@ -223,7 +232,7 @@ class PlotView extends Component<Props, State> {
       if (usingTestApi) {
         delayToNextRequestInSeconds = 4 * 60 * 60;
       }
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
       this.setState({ response: error.toString() });
       this.failureCount += 1;
@@ -277,7 +286,7 @@ class PlotView extends Component<Props, State> {
           height={height}
           value={value}
           trend={trend}
-          isOldReading={isOldReading}
+          isOldReading={isOldReading ?? false}
         />
         <Text style={styles.response}>
           {response.includes('Error') ? lastUrl + ' ' : ''}
@@ -289,7 +298,7 @@ class PlotView extends Component<Props, State> {
   }
 }
 
-export default function WrappedPlotView() {
+export function WrappedPlotView() {
   const { settings } = useSettingsContext();
   const navigation = useNavigation();
   return <PlotView state={settings} navigation={navigation} />;

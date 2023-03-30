@@ -1,15 +1,15 @@
 import React from 'react';
 import { Line } from 'react-native-svg';
-import SvgText from './SvgText';
+import { SvgText } from './SvgText';
 
-type Props = {
-  x: number,
-  height: number,
-  color: string,
-  value: string,
-};
+interface Props {
+  x: number;
+  height: number;
+  color: string;
+  value: string;
+}
 
-const VertAxisLine = (props: Props) => {
+export function VertAxisLine(props: Props) {
   const { x, height, value, color } = props;
   return (
     <>
@@ -33,6 +33,4 @@ const VertAxisLine = (props: Props) => {
       </SvgText>
     </>
   );
-};
-
-export default VertAxisLine;
+}

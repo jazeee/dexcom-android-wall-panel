@@ -1,4 +1,12 @@
-export const extractDate = reading => {
+import {
+  IPlotDatum,
+  IPlotDatumDateProps,
+  IPlotSettings,
+  ISummarizedPlotDatum,
+  Trend,
+} from './types';
+
+export function extractDate(reading: IPlotDatum): IPlotDatumDateProps | null {
   const { ST: serverTimeString } = reading;
   const matches = /Date\(([0-9]*)\)/.exec(serverTimeString);
   if (matches) {
@@ -17,9 +25,12 @@ export const extractDate = reading => {
     };
   }
   return null;
-};
+}
 
-export const extractData = (plotSettings, reading) => {
+export function extractData(
+  plotSettings: IPlotSettings,
+  reading: IPlotDatum,
+): ISummarizedPlotDatum {
   const { higherAxis, lowAxis } = plotSettings;
   const dateDetails = extractDate(reading) || {};
   const { Trend: trend, Value: value } = reading;
@@ -35,26 +46,33 @@ export const extractData = (plotSettings, reading) => {
     isLow,
     isInRange: !isHigh && !isLow,
   };
-};
+}
 
-export const getIconName = trend => {
-  // https://materialdesignicons.com/
+export function getIconName(trend?: Trend | number) {
+  // https://reactnativeelements.com/docs/components/icon
   switch (trend) {
     case 1:
+    case Trend.DoubleUp:
       return 'arrow-up-thick';
     case 2:
+    case Trend.SingleUp:
       return 'arrow-up';
     case 3:
+    case Trend.FortyFiveUp:
       return 'arrow-top-right';
     case 4:
+    case Trend.Flat:
       return 'arrow-right';
     case 5:
+    case Trend.FortyFiveDown:
       return 'arrow-bottom-right';
     case 6:
+    case Trend.SingleDown:
       return 'arrow-down';
     case 7:
+    case Trend.DoubleDown:
       return 'arrow-down-thick';
     default:
-      return 'question';
+      return 'help';
   }
-};
+}

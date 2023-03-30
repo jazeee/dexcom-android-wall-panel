@@ -1,16 +1,16 @@
 import { settingsRouteConfig } from '../SettingsView';
 import { homeRouteConfig } from '../Home';
-import PlotView from '../PlotView';
-import AudioTest from '../PlotView/AudioTest';
 import { AppStack, AppStackNavigator } from './Stack';
+import { audioTestRouteConfig } from '../AudioTest/routeConfig';
+import { plotViewRouteConfig } from '../PlotView/routeConfig';
 
 export function AppRoutes() {
   return (
     <AppStackNavigator>
       <AppStack.Screen {...homeRouteConfig} />
       <AppStack.Screen {...settingsRouteConfig} />
-      <AppStack.Screen name="PlotView" component={PlotView} />
-      <AppStack.Screen name="AudioTest" component={AudioTest} />
+      <AppStack.Screen {...plotViewRouteConfig} />
+      <AppStack.Screen {...audioTestRouteConfig} />
     </AppStackNavigator>
   );
 }
