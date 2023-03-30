@@ -1,14 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { VISITED_SETTINGS_VIEW } from '../SettingsView/constants';
 
 export function Home() {
-  // componentDidMount() {
-  //   // const { initialVisitState } = this.props.state;
-  //   // if (initialVisitState === VISITED_SETTINGS_VIEW) {
-  //   //   this.props.navigation.navigate('PlotView');
-  //   // }
-  // }
-
   return (
     <View style={styles.container}>
       <Text style={styles.welcome}>Jazeee Data Monitor v2.0.0</Text>
