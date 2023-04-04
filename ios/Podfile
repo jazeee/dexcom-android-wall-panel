@@ -21,7 +21,7 @@ if linkage != nil
   use_frameworks! :linkage => linkage.to_sym
 end
 
-target 'jazComDataViewer' do
+target 'jazeee' do
   config = use_native_modules!
 
   # Flags change depending on the env values.
