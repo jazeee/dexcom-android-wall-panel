@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-               BuildableName = "jazComDataViewer.app"
-               BlueprintName = "jazComDataViewer"
-               ReferencedContainer = "container:jazComDataViewer.xcodeproj">
+               BuildableName = "jazeee.app"
+               BlueprintName = "jazeee"
+               ReferencedContainer = "container:jazeee.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -35,7 +35,7 @@
                BlueprintIdentifier = "00E356ED1AD99517003FC87E"
                BuildableName = "jazComDataViewerTests.xctest"
                BlueprintName = "jazComDataViewerTests"
-               ReferencedContainer = "container:jazComDataViewer.xcodeproj">
+               ReferencedContainer = "container:jazeee.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -55,9 +55,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "jazComDataViewer.app"
-            BlueprintName = "jazComDataViewer"
-            ReferencedContainer = "container:jazComDataViewer.xcodeproj">
+            BuildableName = "jazeee.app"
+            BlueprintName = "jazeee"
+            ReferencedContainer = "container:jazeee.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -72,9 +72,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "jazComDataViewer.app"
-            BlueprintName = "jazComDataViewer"
-            ReferencedContainer = "container:jazComDataViewer.xcodeproj">
+            BuildableName = "jazeee.app"
+            BlueprintName = "jazeee"
+            ReferencedContainer = "container:jazeee.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

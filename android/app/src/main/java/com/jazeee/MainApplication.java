@@ -1,4 +1,4 @@
-package com.jazcomdataviewer;
+package com.jazeee;
 
 import android.app.Application;
 import com.facebook.react.PackageList;
