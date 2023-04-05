@@ -1,6 +1,9 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { Button, StyleSheet, Text, View } from 'react-native';
+import { COLORS } from '../common/colors';
 
 export function Home() {
+  const { navigate } = useNavigation();
   return (
     <View style={styles.container}>
       <Text style={styles.welcome}>Jazeee Data Monitor v2.0.0</Text>
@@ -22,6 +25,11 @@ export function Home() {
         This app will use a small amount of network bandwidth, which may cost
         you. Use at your own risk.
       </Text>
+      <Button
+        color={COLORS.primary}
+        onPress={() => navigate('AudioTest' as never)}
+        title="Test Audio"
+      />
     </View>
   );
 }
