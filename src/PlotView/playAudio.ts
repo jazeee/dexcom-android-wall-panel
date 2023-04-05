@@ -1,35 +1,31 @@
 import Sound from 'react-native-sound';
+import { Audio } from 'expo-av';
 
 Sound.setCategory('Playback');
 
-const soundPlayers: Record<string, Promise<Sound>> = {};
-
-function createSoundPlayer(audioName: string): Promise<Sound> {
-  return new Promise((resolve, reject) => {
-    const newSound = new Sound(audioName, Sound.MAIN_BUNDLE, (error) => {
-      if (error) {
-        return reject(error);
-      }
-    });
-    resolve(newSound);
-  });
+function getSoundAsset(audioName: string) {
+  switch (audioName) {
+    case 'eat_please.mp3':
+      return require('./assets/eat_please.mp3');
+    case 'high_alert.mp3':
+      return require('./assets/high_alert.mp3');
+    default:
+      throw new Error(`Unknown audio asset ${audioName}`);
+  }
 }
-['eat_please.mp3', 'high_alert.mp3'].forEach((audioName) => {
-  soundPlayers[audioName] = createSoundPlayer(audioName);
-});
+
+function createSoundPlayer(audioName: string) {
+  return Audio.Sound.createAsync(getSoundAsset(audioName));
+}
 
 let playCount = 0;
 export async function playAudio(audioName: string, volume = 1.0) {
-  let soundPlayer = soundPlayers[audioName];
-  if (!soundPlayer) {
-    soundPlayer = createSoundPlayer(audioName);
-  }
-  soundPlayers[audioName] = soundPlayer;
-  const player = await soundPlayer;
-  return await new Promise((resolve) => {
-    console.log(`Played sound ${++playCount} times`);
-    player.setVolume(volume).play(resolve);
-  });
+  const soundPlayer = createSoundPlayer(audioName);
+  const { sound } = await soundPlayer;
+  console.log(`Played sound ${++playCount} times at volume ${volume}`);
+  await sound.setVolumeAsync(volume);
+  // await sound.setPositionAsync(0);
+  return await sound.playAsync();
 }
 
 export function safePlayAudio(audioName: string, volume = 1.0) {
