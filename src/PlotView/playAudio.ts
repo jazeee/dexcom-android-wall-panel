@@ -1,7 +1,4 @@
-import Sound from 'react-native-sound';
 import { Audio } from 'expo-av';
-
-Sound.setCategory('Playback');
 
 function getSoundAsset(audioName: string) {
   switch (audioName) {
