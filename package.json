@@ -19,7 +19,7 @@
     "@tanstack/react-query": "4.28.0",
     "constate": "3.3.2",
     "date-fns": "2.29.3",
-    "expo": "48.0.0",
+    "expo": "48.0.6",
     "react": "18.2.0",
     "react-native": "0.71.5",
     "react-native-dialog": "9.3.0",
@@ -30,7 +30,8 @@
     "react-native-sound": "0.11.2",
     "react-native-svg": "13.8.0",
     "react-native-vector-icons": "9.2.0",
-    "regression": "jazeee/regression-js#07be8530cab0269772d744d1d43180efc3b727d9"
+    "regression": "jazeee/regression-js#07be8530cab0269772d744d1d43180efc3b727d9",
+    "expo-av": "13.2.1"
   },
   "devDependencies": {
     "@babel/core": "7.21.3",
