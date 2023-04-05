@@ -8,6 +8,7 @@
     "ios": "react-native run-ios",
     "lint": "eslint .",
     "react-native": "react-native",
+    "expo": "expo",
     "start": "react-native start",
     "test": "jest"
   },
@@ -18,6 +19,7 @@
     "@tanstack/react-query": "4.28.0",
     "constate": "3.3.2",
     "date-fns": "2.29.3",
+    "expo": "48.0.0",
     "react": "18.2.0",
     "react-native": "0.71.5",
     "react-native-dialog": "9.3.0",
