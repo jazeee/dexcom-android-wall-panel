@@ -31,8 +31,8 @@ interface State {
   readings?: IPlotDatum[];
   lastUrl: string;
   response: string;
-  width: number;
-  height: number;
+  plotWidth: number;
+  plotHeight: number;
   plotSettings: IPlotSettings;
 }
 
@@ -53,8 +53,8 @@ class PlotView extends Component<Props, State> {
       lastUrl: '',
       response: '',
       plotSettings: DEFAULT_META,
-      width: 100,
-      height: 100,
+      plotWidth: 100,
+      plotHeight: 100,
     };
     this.authKey = '';
     this.lastUpdatedAuthKey = 0;
@@ -224,8 +224,8 @@ class PlotView extends Component<Props, State> {
       lastUrl,
       response,
       isOldReading,
-      width,
-      height,
+      plotWidth,
+      plotHeight,
       plotSettings,
     } = this.state;
     return (
@@ -233,18 +233,18 @@ class PlotView extends Component<Props, State> {
         style={styles.container}
         onLayout={(event) => {
           const { width, height } = event.nativeEvent.layout;
-          this.setState({ width, height });
+          this.setState({ plotWidth: width, plotHeight: height });
         }}>
-        {width > plotMarginX2 && height > plotMarginX2 && (
+        {plotWidth > plotMarginX2 && plotHeight > plotMarginX2 && (
           <View
             style={{
               ...styles.overlay,
-              width: width - plotMarginX2,
-              height: height - plotMarginX2,
+              width: plotWidth - plotMarginX2,
+              height: plotHeight - plotMarginX2,
             }}>
             <GlucoseGraph
-              width={width - plotMarginX2}
-              height={height - plotMarginX2}
+              width={plotWidth - plotMarginX2}
+              height={plotHeight - plotMarginX2}
               readings={readings}
               plotSettings={plotSettings}
             />
@@ -252,8 +252,8 @@ class PlotView extends Component<Props, State> {
           </View>
         )}
         <Overlay
-          width={width}
-          height={height}
+          width={plotWidth}
+          height={plotHeight}
           value={value}
           trend={trend}
           isOldReading={isOldReading ?? false}
