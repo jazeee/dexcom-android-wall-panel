@@ -9,6 +9,7 @@
     "lint": "eslint .",
     "react-native": "react-native",
     "start": "react-native start",
+    "build": "./build.sh",
     "test": "jest"
   },
   "dependencies": {
