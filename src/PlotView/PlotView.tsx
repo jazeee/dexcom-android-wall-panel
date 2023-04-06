@@ -21,6 +21,7 @@ interface Props {
   // FIXME refactor
   navigation: any;
   apiUrls: IApiUrl | undefined;
+  authKey: string;
 }
 
 interface State {
@@ -37,7 +38,6 @@ interface State {
 }
 
 class PlotView extends Component<Props, State> {
-  authKey: string;
   lastUpdatedAuthKey: number;
   lastTimeoutId: number;
   failureCount: number;
@@ -56,7 +56,6 @@ class PlotView extends Component<Props, State> {
       plotWidth: 100,
       plotHeight: 100,
     };
-    this.authKey = '';
     this.lastUpdatedAuthKey = 0;
     this.lastTimeoutId = 0;
     this.failureCount = 0;
@@ -64,7 +63,7 @@ class PlotView extends Component<Props, State> {
 
   componentDidMount = () => {
     this.isThisMounted = true;
-    this.getData(true);
+    this.getData();
   };
 
   componentDidUpdate = (prevProps: Props) => {
@@ -77,7 +76,7 @@ class PlotView extends Component<Props, State> {
     ) {
       this.setState(
         { readings: [], value: 0, response: 'Loading...' },
-        this.getData.bind(this, true),
+        this.getData.bind(this),
       );
     }
   };
@@ -90,7 +89,7 @@ class PlotView extends Component<Props, State> {
     this.lastTimeoutId = 0;
   };
 
-  getData = async (forceReload = false) => {
+  getData = async () => {
     if (!this.isThisMounted) {
       return;
     }
@@ -103,53 +102,18 @@ class PlotView extends Component<Props, State> {
       return;
     }
     if (!usingTestApi) {
-      if (!username || !password || username === 'sample') {
+      if (!username || !password) {
         this.setState({ response: 'Need username and password!' });
         this.props.navigation.navigate('SettingsView');
         return;
       }
     }
     let delayToNextRequestInSeconds = 5 * 60;
-    const currentTime = Date.now();
     try {
-      const {
-        auth: authReq,
-        data: dataReq,
-        meta = DEFAULT_META,
-      } = apiUrls ?? ({} as IApiUrl);
-      if (
-        forceReload ||
-        currentTime - this.lastUpdatedAuthKey > 45 * 60 * 1000
-      ) {
-        this.lastUpdatedAuthKey = currentTime;
-        // Load auth key
-        const { method = 'POST' } = authReq;
-        this.setState({ lastUrl: authReq.url });
-        const postResult = await fetch(authReq.url, {
-          method,
-          mode: 'cors',
-          headers: authReq.headers,
-          body:
-            method !== 'GET'
-              ? JSON.stringify({
-                  ...authReq.bodyBase,
-                  accountName: username,
-                  password,
-                })
-              : undefined,
-        });
-        const { status, ok } = postResult;
-        if (!ok) {
-          throw new Error(`${status}: Unable to ${method} Username`);
-        }
-        this.authKey = await postResult.json();
-      }
-      if (!this.authKey) {
-        throw new Error('Unable to load auth key');
-      }
+      const { data: dataReq, meta = DEFAULT_META } = apiUrls ?? ({} as IApiUrl);
       this.setState({ lastUrl: dataReq.url });
       const postResult = await fetch(
-        `${dataReq.url}?sessionId=${this.authKey}&minutes=1440&maxCount=100`,
+        `${dataReq.url}?sessionId=${this.props.authKey}&minutes=1440&maxCount=100`,
         {
           method: dataReq.method || 'POST',
           mode: 'cors',
@@ -272,7 +236,7 @@ export function WrappedPlotView() {
   const navigation = useNavigation();
   const { settings } = useSettingsContext();
   const { sourceUrl } = settings;
-  const { data, isLoading } = useQuery({
+  const { data: apiUrls, isLoading: apiUrlsAreLoading } = useQuery({
     queryKey: [sourceUrl, 'urls.json'],
     queryFn: async () => {
       console.log(`Requesting from ${sourceUrl}`);
@@ -282,15 +246,44 @@ export function WrappedPlotView() {
         const apiError = await response.text();
         throw new Error(`${status}: ${apiError}`);
       }
-      const apiUrls: IApiUrl = await response.json();
-      if (!apiUrls) {
+      const retrievedApiUrls: IApiUrl = await response.json();
+      if (!retrievedApiUrls) {
         throw new Error('No URL JSON content');
       }
-      console.debug('Got API Urls', apiUrls);
-      return apiUrls;
+      console.debug('Got API Urls', retrievedApiUrls);
+      return retrievedApiUrls;
     },
   });
-  if (isLoading) {
+  const { auth: authReq } = apiUrls ?? ({} as IApiUrl);
+  const { method = 'POST', url: authUrl } = authReq ?? {};
+  const { data: authKey, isLoading: authKeyIsLoading } = useQuery({
+    enabled: Boolean(apiUrls),
+    queryKey: [authUrl],
+    refetchInterval: 45 * 60 * 1000,
+    queryFn: async () => {
+      const { username, password } = settings;
+      const apiResult = await fetch(authUrl, {
+        method,
+        mode: 'cors',
+        headers: authReq.headers,
+        body:
+          method !== 'GET'
+            ? JSON.stringify({
+                ...authReq.bodyBase,
+                accountName: username,
+                password,
+              })
+            : undefined,
+      });
+      const { status, ok } = apiResult;
+      if (!ok) {
+        throw new Error(`${status}: Unable to ${method} Username`);
+      }
+      return (await apiResult.json()) as string;
+    },
+  });
+
+  if (apiUrlsAreLoading || authKeyIsLoading) {
     return (
       <View>
         <Text style={styles.response}>Loading...</Text>
@@ -298,7 +291,12 @@ export function WrappedPlotView() {
     );
   }
   return (
-    <PlotView settings={settings} navigation={navigation} apiUrls={data} />
+    <PlotView
+      settings={settings}
+      navigation={navigation}
+      apiUrls={apiUrls}
+      authKey={authKey ?? ''}
+    />
   );
 }
 
