@@ -11,6 +11,7 @@ import { isTestApi } from '../UserSettings/utils';
 import { useSettingsContext } from '../UserSettings/SettingsProvider';
 import { useNavigation } from '@react-navigation/native';
 import { IApiUrl, IPlotDatum, IPlotSettings } from './types';
+import { useQuery } from '@tanstack/react-query';
 
 const plotMargin = 4;
 const plotMarginX2 = plotMargin * 2;
@@ -19,10 +20,10 @@ interface Props {
   settings: Record<string, string>;
   // FIXME refactor
   navigation: any;
+  apiUrls: IApiUrl | undefined;
 }
 
 interface State {
-  apiUrls: IApiUrl | null;
   value: number;
   trend: number;
   timeSinceLastReadingInSeconds: number | undefined;
@@ -51,7 +52,6 @@ class PlotView extends Component<Props, State> {
       isOldReading: undefined,
       lastUrl: '',
       response: '',
-      apiUrls: null,
       plotSettings: DEFAULT_META,
       width: 100,
       height: 100,
@@ -76,7 +76,7 @@ class PlotView extends Component<Props, State> {
       prevSettings.sourceUrl !== settings.sourceUrl
     ) {
       this.setState(
-        { readings: [], value: 0, apiUrls: null, response: 'Loading...' },
+        { readings: [], value: 0, response: 'Loading...' },
         this.getData.bind(this, true),
       );
     }
@@ -90,38 +90,12 @@ class PlotView extends Component<Props, State> {
     this.lastTimeoutId = 0;
   };
 
-  getApiUrls = async (sourceUrl: string): Promise<IApiUrl> => {
-    return new Promise(async (resolve, reject) => {
-      try {
-        console.log(`Requesting from ${sourceUrl}`);
-        const lastUrl = `${sourceUrl}/urls.json`;
-        this.setState({ lastUrl });
-        const response = await fetch(lastUrl);
-        const { status, ok } = response;
-        if (!ok) {
-          const error = await response.text();
-          throw new Error(`${status}: ${error}`);
-        }
-        const apiUrls = await response.json();
-        if (!apiUrls) {
-          throw new Error('No URL JSON content');
-        }
-        console.debug('Got API Urls', apiUrls);
-        this.setState({ apiUrls }, () => {
-          resolve(apiUrls);
-        });
-      } catch (error: any) {
-        this.setState({ response: error.toString() });
-        reject(error);
-      }
-    });
-  };
-
   getData = async (forceReload = false) => {
     if (!this.isThisMounted) {
       return;
     }
-    const { username, password, sourceUrl } = this.props.settings;
+    const { apiUrls, settings } = this.props;
+    const { username, password, sourceUrl } = settings;
     const usingTestApi = isTestApi(sourceUrl);
     if (!sourceUrl) {
       this.setState({ response: 'Need source!' });
@@ -138,10 +112,6 @@ class PlotView extends Component<Props, State> {
     let delayToNextRequestInSeconds = 5 * 60;
     const currentTime = Date.now();
     try {
-      let { apiUrls } = this.state;
-      if (!apiUrls) {
-        apiUrls = await this.getApiUrls(sourceUrl);
-      }
       const {
         auth: authReq,
         data: dataReq,
@@ -299,9 +269,38 @@ class PlotView extends Component<Props, State> {
 }
 
 export function WrappedPlotView() {
-  const { settings } = useSettingsContext();
   const navigation = useNavigation();
-  return <PlotView settings={settings} navigation={navigation} />;
+  const { settings } = useSettingsContext();
+  const { sourceUrl } = settings;
+  const { data, isLoading } = useQuery({
+    queryKey: [sourceUrl, 'urls.json'],
+    queryFn: async () => {
+      console.log(`Requesting from ${sourceUrl}`);
+      const lastUrl = `${sourceUrl}/urls.json`;
+      const response = await fetch(lastUrl);
+      const { status, ok } = response;
+      if (!ok) {
+        const apiError = await response.text();
+        throw new Error(`${status}: ${apiError}`);
+      }
+      const apiUrls: IApiUrl = await response.json();
+      if (!apiUrls) {
+        throw new Error('No URL JSON content');
+      }
+      console.debug('Got API Urls', apiUrls);
+      return apiUrls;
+    },
+  });
+  if (isLoading) {
+    return (
+      <View>
+        <Text style={styles.response}>Loading...</Text>
+      </View>
+    );
+  }
+  return (
+    <PlotView settings={settings} navigation={navigation} apiUrls={data} />
+  );
 }
 
 const styles = StyleSheet.create({
