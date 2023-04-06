@@ -276,8 +276,7 @@ export function WrappedPlotView() {
     queryKey: [sourceUrl, 'urls.json'],
     queryFn: async () => {
       console.log(`Requesting from ${sourceUrl}`);
-      const lastUrl = `${sourceUrl}/urls.json`;
-      const response = await fetch(lastUrl);
+      const response = await fetch(`${sourceUrl}/urls.json`);
       const { status, ok } = response;
       if (!ok) {
         const apiError = await response.text();
