@@ -43,13 +43,18 @@ export function useReadings() {
   const { method = 'POST', url: authUrl } = authReq ?? {};
   const { data: authKey, isLoading: authKeyIsLoading } = useQuery({
     enabled: Boolean(authUrl),
-    queryKey: [authUrl],
+    queryKey: [authUrl, settings],
     refetchInterval: 45 * 60 * 1000,
     queryFn: async () => {
       if (!authReq || !authUrl) {
-        return;
+        throw new Error('Unexpected - authReq or authUrl are not set');
       }
       const { username, password } = settings;
+      if (!apiIsTestUrl) {
+        if (!username || !password) {
+          throw new Error('Unexpected - username or password are not set');
+        }
+      }
       const apiResult = await fetch(authUrl, {
         method,
         mode: 'cors',
@@ -67,7 +72,10 @@ export function useReadings() {
       if (!ok) {
         throw new Error(`${status}: Unable to ${method} Username`);
       }
-      return (await apiResult.json()) as string;
+      // The response is a string encoded as json, with the surrounding quotes
+      const apiText: string = await apiResult.json();
+      console.debug('Got API auth', apiText.substring(0, 8));
+      return apiText;
     },
   });
 

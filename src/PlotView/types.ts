@@ -1,3 +1,8 @@
+export interface IPlotDimensions {
+  plotWidth: number;
+  plotHeight: number;
+}
+
 export enum Trend {
   DoubleDown = 'DoubleDown',
   SingleDown = 'SingleDown',
