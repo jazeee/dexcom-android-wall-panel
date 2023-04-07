@@ -28,7 +28,6 @@ interface State {
   timeSinceLastReadingInSeconds: number | undefined;
   readingIsOld: boolean | undefined;
   readings?: IPlotDatum[];
-  lastUrl: string;
   response: string;
   plotWidth: number;
   plotHeight: number;
@@ -46,7 +45,6 @@ class PlotView extends Component<Props, State> {
     this.state = {
       timeSinceLastReadingInSeconds: undefined,
       readingIsOld: undefined,
-      lastUrl: '',
       response: '',
       plotSettings: DEFAULT_META,
       plotWidth: 100,
@@ -95,7 +93,6 @@ class PlotView extends Component<Props, State> {
     let delayToNextRequestInSeconds = 5 * 60;
     try {
       const { data: dataReq, meta = DEFAULT_META } = apiUrls ?? ({} as IApiUrl);
-      this.setState({ lastUrl: dataReq.url });
       const postResult = await fetch(
         `${dataReq.url}?sessionId=${this.props.authKey}&minutes=1440&maxCount=100`,
         {
@@ -158,7 +155,6 @@ class PlotView extends Component<Props, State> {
   render() {
     const {
       readings,
-      lastUrl,
       response,
       readingIsOld,
       plotWidth,
@@ -198,7 +194,6 @@ class PlotView extends Component<Props, State> {
           readingIsOld={readingIsOld ?? false}
         />
         <Text style={styles.response}>
-          {response.includes('Error') ? lastUrl + ' ' : ''}
           {response}
           {readingIsOld && ' Outdated Reading'}
         </Text>
