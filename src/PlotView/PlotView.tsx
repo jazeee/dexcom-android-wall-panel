@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Button, StyleSheet, Text, View } from 'react-native';
 
 import { COLORS } from '../common/colors';
 import { extractDate, updateTestReadingDateTimes } from './utils';
@@ -9,15 +9,16 @@ import { Overlay } from './components/Overlay';
 import { playAudioIfNeeded } from './playAudio';
 import { isTestApi } from '../UserSettings/utils';
 import { useSettingsContext } from '../UserSettings/SettingsProvider';
-import { IApiUrl, IPlotDatum, IPlotSettings } from './types';
+import { IApiUrl, IPlotDatum } from './types';
 import { useQuery } from '@tanstack/react-query';
+import { useNavigation } from '@react-navigation/native';
 
 const plotMargin = 4;
 const plotMarginX2 = plotMargin * 2;
 const EXTRA_LATENCY_IN_SECONDS = 10 + 10 * Math.random();
 interface Props {
   settings: Record<string, string>;
-  apiUrls: IApiUrl | undefined;
+  apiUrls: IApiUrl;
   authKey: string;
 }
 
@@ -26,7 +27,6 @@ interface State {
   logContent: string;
   plotWidth: number;
   plotHeight: number;
-  plotSettings: IPlotSettings;
 }
 
 class PlotView extends Component<Props, State> {
@@ -39,7 +39,6 @@ class PlotView extends Component<Props, State> {
     super(props);
     this.state = {
       logContent: '',
-      plotSettings: DEFAULT_META,
       plotWidth: 100,
       plotHeight: 100,
     };
@@ -85,7 +84,7 @@ class PlotView extends Component<Props, State> {
     const apiIsTestUrl = isTestApi(sourceUrl);
     let delayToNextRequestInSeconds = 5 * 60;
     try {
-      const { data: dataReq, meta = DEFAULT_META } = apiUrls ?? ({} as IApiUrl);
+      const { data: dataReq, meta = DEFAULT_META } = apiUrls;
       const postResult = await fetch(
         `${dataReq.url}?sessionId=${this.props.authKey}&minutes=1440&maxCount=100`,
         {
@@ -114,7 +113,6 @@ class PlotView extends Component<Props, State> {
       this.setState({
         logContent: 'Success',
         readings,
-        plotSettings: meta,
       });
       if (!readingIsOld) {
         playAudioIfNeeded(value, meta);
@@ -144,8 +142,9 @@ class PlotView extends Component<Props, State> {
   };
 
   render() {
-    const { readings, logContent, plotWidth, plotHeight, plotSettings } =
-      this.state;
+    const { apiUrls } = this.props;
+    const { meta: plotSettings = DEFAULT_META } = apiUrls;
+    const { readings, logContent, plotWidth, plotHeight } = this.state;
     const [latestReading] = readings ?? [];
     const { Trend: trend, Value: latestValue } = latestReading ?? {};
     const readingIsOld =
@@ -190,6 +189,7 @@ class PlotView extends Component<Props, State> {
 }
 
 export function WrappedPlotView() {
+  const { navigate } = useNavigation();
   const { settings } = useSettingsContext();
   const { sourceUrl } = settings;
   const { data: apiUrls, isLoading: apiUrlsAreLoading } = useQuery({
@@ -242,8 +242,20 @@ export function WrappedPlotView() {
 
   if (apiUrlsAreLoading || authKeyIsLoading) {
     return (
-      <View>
+      <View style={styles.container}>
         <Text style={styles.logContent}>Loading...</Text>
+      </View>
+    );
+  }
+  if (!apiUrls) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.message}>Problem loading API URLS...</Text>
+        <Button
+          color={COLORS.primary}
+          onPress={() => navigate('SettingsView' as never)}
+          title="Settings"
+        />
       </View>
     );
   }
@@ -273,6 +285,10 @@ const styles = StyleSheet.create({
   },
   trend: {
     fontSize: 64,
+    color: COLORS.primary,
+  },
+  message: {
+    fontSize: 16,
     color: COLORS.primary,
   },
   logContent: {

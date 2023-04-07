@@ -6,7 +6,12 @@ import {
   Trend,
 } from './types';
 
-export function extractDate(reading: IPlotDatum): IPlotDatumDateProps | null {
+export function extractDate(
+  reading: IPlotDatum | undefined,
+): IPlotDatumDateProps | null {
+  if (!reading) {
+    return null;
+  }
   const { ST: serverTimeString } = reading;
   const matches = /Date\(([0-9]*)\)/.exec(serverTimeString);
   if (matches) {
