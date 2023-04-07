@@ -16,7 +16,7 @@ export function useReadings() {
     data: apiUrls,
     isLoading: apiUrlsAreLoading,
     error: apiUrlsError,
-  } = useQuery({
+  } = useQuery<IApiUrl, Error, IApiUrl, string[]>({
     queryKey: [sourceUrl, 'urls.json'],
     enabled: Boolean(sourceUrl),
     queryFn: async () => {
@@ -76,9 +76,9 @@ export function useReadings() {
     data: readings,
     isLoading: readingsAreLoading,
     error: readingsError,
-  } = useQuery({
-    queryKey: [dataUrl, authKey],
+  } = useQuery<IPlotDatum[], Error, IPlotDatum[], string[]>({
     enabled: Boolean(dataUrl) && Boolean(authKey),
+    queryKey: ['readingDataApi', dataUrl ?? '', authKey ?? ''],
     refetchInterval: (data) => {
       let delayToNextRequestInSeconds = 5 * 60;
       if (data) {
@@ -103,7 +103,7 @@ export function useReadings() {
     },
     queryFn: async () => {
       if (!dataUrl || !authKey) {
-        return;
+        throw new Error('Unexpected - dataUrl or authKey are not set');
       }
       const postResult = await fetch(
         `${dataUrl}?sessionId=${authKey}&minutes=1440&maxCount=100`,
@@ -127,13 +127,11 @@ export function useReadings() {
       return apiReadings;
     },
     onSuccess: (data) => {
-      if (data) {
-        const [latestReading] = data;
-        if (latestReading) {
-          const { readingIsOld } = extractDate(latestReading) || {};
-          if (!readingIsOld) {
-            playAudioIfNeeded(latestReading.Value, plotSettings);
-          }
+      const [latestReading] = data;
+      if (latestReading) {
+        const { readingIsOld } = extractDate(latestReading) || {};
+        if (!readingIsOld) {
+          playAudioIfNeeded(latestReading.Value, plotSettings);
         }
       }
     },
