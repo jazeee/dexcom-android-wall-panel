@@ -45,5 +45,11 @@ const styles = StyleSheet.create({
   value: {
     fontSize: 180,
     color: COLORS.primary,
+    textShadowColor: '#3af',
+    textShadowOffset: {
+      width: 2,
+      height: 2,
+    },
+    textShadowRadius: 8,
   },
 });
