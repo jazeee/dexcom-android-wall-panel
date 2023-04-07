@@ -86,7 +86,16 @@ export function useReadings() {
     error: readingsError,
   } = useQuery<IPlotDatum[], Error, IPlotDatum[], string[]>({
     enabled: Boolean(dataUrl) && Boolean(authKey),
-    queryKey: ['readingDataApi', dataUrl ?? '', authKey ?? ''],
+    queryKey: [
+      'readingDataApi',
+      dataUrl ?? '',
+      /**
+       * The authKey changes every 45 minutes or so. We don't care if
+       * it changes, as long as it is defined.
+       * We only want to invalidate query if the authKey is falsy.
+       */
+      authKey ? 'valid-auth-key' : '',
+    ],
     refetchInterval: (data) => {
       let delayToNextRequestInSeconds = 5 * 60;
       if (data) {
