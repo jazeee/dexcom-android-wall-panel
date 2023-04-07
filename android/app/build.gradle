@@ -98,8 +98,8 @@ android {
         applicationId "com.jazeee"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 19
-        versionName "2.1.2"
+        versionCode 20
+        versionName "2.1.3"
     }
 
     splits {
