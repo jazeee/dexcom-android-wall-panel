@@ -76,3 +76,16 @@ export function getIconName(trend?: Trend | number) {
       return 'help';
   }
 }
+
+export function updateTestReadingDateTimes(readings: IPlotDatum[]) {
+  const [firstReading] = readings;
+  const firstReadingDate = extractDate(firstReading);
+  readings.forEach((reading: IPlotDatum) => {
+    const readingDate = extractDate(reading);
+    const updatedTimeInMilliseconds =
+      Date.now() +
+      (readingDate?.timeInMilliseconds ?? 0) -
+      (firstReadingDate?.timeInMilliseconds ?? 0);
+    reading.ST = `/Date(${updatedTimeInMilliseconds})/`;
+  });
+}
