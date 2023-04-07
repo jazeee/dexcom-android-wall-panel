@@ -9,7 +9,7 @@ import { Overlay } from './components/Overlay';
 import { playAudioIfNeeded } from './playAudio';
 import { isTestApi } from '../UserSettings/utils';
 import { useSettingsContext } from '../UserSettings/SettingsProvider';
-import { IApiUrl, IPlotDatum } from './types';
+import { IApiUrl, IPlotDatum, IPlotSettings } from './types';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigation } from '@react-navigation/native';
 
@@ -20,131 +20,28 @@ interface Props {
   settings: Record<string, string>;
   apiUrls: IApiUrl;
   authKey: string;
+  readings?: IPlotDatum[];
+  plotSettings: IPlotSettings;
+  logContent: string;
 }
 
 interface State {
-  readings?: IPlotDatum[];
-  logContent: string;
   plotWidth: number;
   plotHeight: number;
 }
 
 class PlotView extends Component<Props, State> {
-  lastUpdatedAuthKey: number;
-  lastTimeoutId: number;
-  failureCount: number;
-  isThisMounted: boolean | undefined;
-
   constructor(props: Props) {
     super(props);
     this.state = {
-      logContent: '',
-      plotWidth: 100,
-      plotHeight: 100,
+      plotWidth: 0,
+      plotHeight: 0,
     };
-    this.lastUpdatedAuthKey = 0;
-    this.lastTimeoutId = 0;
-    this.failureCount = 0;
   }
 
-  componentDidMount = () => {
-    this.isThisMounted = true;
-    this.getData();
-  };
-
-  componentDidUpdate = (prevProps: Props) => {
-    const { settings: prevSettings } = prevProps;
-    const { settings } = this.props;
-    if (
-      prevSettings.username !== settings.username ||
-      prevSettings.password !== settings.password ||
-      prevSettings.sourceUrl !== settings.sourceUrl
-    ) {
-      this.setState(
-        { readings: [], logContent: 'Loading...' },
-        this.getData.bind(this),
-      );
-    }
-  };
-
-  componentWillUnmount = () => {
-    this.isThisMounted = false;
-    if (this.lastTimeoutId !== 0) {
-      clearTimeout(this.lastTimeoutId);
-    }
-    this.lastTimeoutId = 0;
-  };
-
-  getData = async () => {
-    if (!this.isThisMounted) {
-      return;
-    }
-    const { apiUrls, settings } = this.props;
-    const { sourceUrl } = settings;
-    const apiIsTestUrl = isTestApi(sourceUrl);
-    let delayToNextRequestInSeconds = 5 * 60;
-    try {
-      const { data: dataReq, meta = DEFAULT_META } = apiUrls;
-      const postResult = await fetch(
-        `${dataReq.url}?sessionId=${this.props.authKey}&minutes=1440&maxCount=100`,
-        {
-          method: dataReq.method || 'POST',
-          mode: 'cors',
-          headers: dataReq.headers,
-          body: dataReq.method !== 'GET' ? '' : undefined,
-        },
-      );
-      const { status, ok } = postResult;
-      if (!ok) {
-        const error = await postResult.text();
-        throw new Error(`${status}: ${dataReq.url} - ${error}`);
-      }
-      const readings: IPlotDatum[] = await postResult.json();
-      if (apiIsTestUrl) {
-        updateTestReadingDateTimes(readings);
-      }
-      const [latestReading] = readings;
-      const { Value: value } = latestReading;
-      const { timeSinceLastReadingInSeconds, readingIsOld } =
-        extractDate(latestReading) || {};
-      if (!this.isThisMounted) {
-        return;
-      }
-      this.setState({
-        logContent: 'Success',
-        readings,
-      });
-      if (!readingIsOld) {
-        playAudioIfNeeded(value, meta);
-      }
-      delayToNextRequestInSeconds =
-        5 * 60 - (timeSinceLastReadingInSeconds ?? 0);
-      delayToNextRequestInSeconds =
-        Math.max(2 * 60, delayToNextRequestInSeconds) +
-        EXTRA_LATENCY_IN_SECONDS;
-      console.log(delayToNextRequestInSeconds);
-      this.failureCount = 0;
-      if (apiIsTestUrl) {
-        delayToNextRequestInSeconds = 4 * 60 * 60;
-      }
-    } catch (error: any) {
-      console.log(error);
-      this.setState({ logContent: error.toString() });
-      this.failureCount += 1;
-    }
-    if (this.lastTimeoutId !== 0) {
-      clearTimeout(this.lastTimeoutId);
-    }
-    this.lastTimeoutId = setTimeout(
-      this.getData.bind(this),
-      (this.failureCount + 1) * delayToNextRequestInSeconds * 1000,
-    );
-  };
-
   render() {
-    const { apiUrls } = this.props;
-    const { meta: plotSettings = DEFAULT_META } = apiUrls;
-    const { readings, logContent, plotWidth, plotHeight } = this.state;
+    const { readings, plotSettings, logContent } = this.props;
+    const { plotWidth, plotHeight } = this.state;
     const [latestReading] = readings ?? [];
     const { Trend: trend, Value: latestValue } = latestReading ?? {};
     const readingIsOld =
@@ -192,6 +89,7 @@ export function WrappedPlotView() {
   const { navigate } = useNavigation();
   const { settings } = useSettingsContext();
   const { sourceUrl } = settings;
+  const apiIsTestUrl = isTestApi(sourceUrl);
   const { data: apiUrls, isLoading: apiUrlsAreLoading } = useQuery({
     queryKey: [sourceUrl, 'urls.json'],
     enabled: Boolean(sourceUrl),
@@ -211,13 +109,20 @@ export function WrappedPlotView() {
       return retrievedApiUrls;
     },
   });
-  const { auth: authReq } = apiUrls ?? ({} as IApiUrl);
+  const {
+    auth: authReq,
+    data: dataReq,
+    meta: plotSettings = DEFAULT_META,
+  } = apiUrls ?? {};
   const { method = 'POST', url: authUrl } = authReq ?? {};
   const { data: authKey, isLoading: authKeyIsLoading } = useQuery({
-    enabled: Boolean(apiUrls),
+    enabled: Boolean(authUrl),
     queryKey: [authUrl],
     refetchInterval: 45 * 60 * 1000,
     queryFn: async () => {
+      if (!authReq || !authUrl) {
+        return;
+      }
       const { username, password } = settings;
       const apiResult = await fetch(authUrl, {
         method,
@@ -240,7 +145,78 @@ export function WrappedPlotView() {
     },
   });
 
-  if (apiUrlsAreLoading || authKeyIsLoading) {
+  const dataUrl = dataReq?.url;
+  const {
+    data: readings,
+    isLoading: readingsAreLoading,
+    error: readingsError,
+  } = useQuery({
+    queryKey: [dataUrl, authKey],
+    enabled: Boolean(dataUrl) && Boolean(authKey),
+    refetchInterval: (data) => {
+      let delayToNextRequestInSeconds = 5 * 60;
+      if (data) {
+        const [latestReading] = data;
+        if (latestReading) {
+          const { timeSinceLastReadingInSeconds } =
+            extractDate(latestReading) || {};
+          delayToNextRequestInSeconds -= timeSinceLastReadingInSeconds ?? 0;
+          delayToNextRequestInSeconds = Math.max(
+            // Ensure the next delay is at least 2 minutes.
+            2 * 60,
+            delayToNextRequestInSeconds,
+          );
+          delayToNextRequestInSeconds += EXTRA_LATENCY_IN_SECONDS;
+          if (apiIsTestUrl) {
+            delayToNextRequestInSeconds = 4 * 60 * 60;
+          }
+          console.debug(delayToNextRequestInSeconds);
+        }
+      }
+      return delayToNextRequestInSeconds * 1000;
+    },
+    queryFn: async () => {
+      if (!dataUrl || !authKey) {
+        return;
+      }
+      const postResult = await fetch(
+        `${dataUrl}?sessionId=${authKey}&minutes=1440&maxCount=100`,
+        {
+          method: dataReq.method || 'POST',
+          mode: 'cors',
+          headers: dataReq.headers,
+          body: dataReq.method !== 'GET' ? '' : undefined,
+        },
+      );
+      const { status, ok } = postResult;
+      if (!ok) {
+        const error = await postResult.text();
+        throw new Error(`${status}: ${dataUrl} - ${error}`);
+      }
+      const apiReadings: IPlotDatum[] = await postResult.json();
+      if (apiIsTestUrl) {
+        updateTestReadingDateTimes(apiReadings);
+      }
+      return apiReadings;
+    },
+    onSuccess: (data) => {
+      if (data) {
+        const [latestReading] = data;
+        if (latestReading) {
+          const { readingIsOld } = extractDate(latestReading) || {};
+          if (!readingIsOld) {
+            playAudioIfNeeded(latestReading.Value, plotSettings);
+          }
+        }
+      }
+    },
+  });
+
+  if (
+    apiUrlsAreLoading ||
+    authKeyIsLoading ||
+    (readingsAreLoading && !readings)
+  ) {
     return (
       <View style={styles.container}>
         <Text style={styles.logContent}>Loading...</Text>
@@ -260,7 +236,14 @@ export function WrappedPlotView() {
     );
   }
   return (
-    <PlotView settings={settings} apiUrls={apiUrls} authKey={authKey ?? ''} />
+    <PlotView
+      settings={settings}
+      apiUrls={apiUrls}
+      authKey={authKey ?? ''}
+      readings={readings}
+      plotSettings={plotSettings}
+      logContent={readingsError ? String(readingsError) : 'Success'}
+    />
   );
 }
 
