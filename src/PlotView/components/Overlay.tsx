@@ -9,14 +9,15 @@ import { getIconName } from '../utils';
 interface Props {
   value: number;
   trend: number | Trend;
-  isOldReading: boolean;
+  readingIsOld: boolean;
   width: number;
   height: number;
 }
 
 export function Overlay(props: Props) {
-  const { width, height, value, trend, isOldReading } = props;
-  const isLarge = width > 480 && height > 360;
+  const { width, height, value, trend, readingIsOld } = props;
+  const widthIsLarge = width > 480 && height > 360;
+  const iconSize = widthIsLarge ? 120 : 60;
   return (
     <ScrollView style={styles.innerContainer}>
       <Text
@@ -24,15 +25,15 @@ export function Overlay(props: Props) {
           // eslint-disable-next-line react-native/no-inline-styles
           {
             ...styles.value,
-            fontSize: 180 - (isLarge ? 0 : 80),
-            color: isOldReading ? '#666' : COLORS.primary,
+            fontSize: 180 - (widthIsLarge ? 0 : 80),
+            color: readingIsOld ? '#666' : COLORS.primary,
           }
         }>
         {value ? value : '-'}{' '}
-        {isOldReading && <Icon name="help" size={isLarge ? 120 : 60} />}
-        <Icon name={getIconName(trend)} size={isLarge ? 120 : 60} />
+        {readingIsOld && <Icon name="help" size={iconSize} />}
+        <Icon name={getIconName(trend)} size={iconSize} />
         {(trend === 1 || trend === 7) && (
-          <Icon name={getIconName()} size={isLarge ? 120 : 60} />
+          <Icon name={getIconName()} size={iconSize} />
         )}
       </Text>
     </ScrollView>

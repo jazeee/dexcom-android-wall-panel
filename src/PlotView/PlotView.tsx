@@ -10,7 +10,7 @@ import { playAudioIfNeeded } from './playAudio';
 import { isTestApi } from '../UserSettings/utils';
 import { useSettingsContext } from '../UserSettings/SettingsProvider';
 import { useNavigation } from '@react-navigation/native';
-import { IApiUrl, IPlotDatum, IPlotSettings, Trend } from './types';
+import { IApiUrl, IPlotDatum, IPlotSettings } from './types';
 import { useQuery } from '@tanstack/react-query';
 
 const plotMargin = 4;
@@ -25,10 +25,8 @@ interface Props {
 }
 
 interface State {
-  value: number;
-  trend: Trend;
   timeSinceLastReadingInSeconds: number | undefined;
-  isOldReading: boolean | undefined;
+  readingIsOld: boolean | undefined;
   readings?: IPlotDatum[];
   lastUrl: string;
   response: string;
@@ -46,10 +44,8 @@ class PlotView extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      value: 0,
-      trend: Trend.Flat,
       timeSinceLastReadingInSeconds: undefined,
-      isOldReading: undefined,
+      readingIsOld: undefined,
       lastUrl: '',
       response: '',
       plotSettings: DEFAULT_META,
@@ -75,7 +71,7 @@ class PlotView extends Component<Props, State> {
       prevSettings.sourceUrl !== settings.sourceUrl
     ) {
       this.setState(
-        { readings: [], value: 0, response: 'Loading...' },
+        { readings: [], response: 'Loading...' },
         this.getData.bind(this),
       );
     }
@@ -115,26 +111,24 @@ class PlotView extends Component<Props, State> {
         throw new Error(`${status}: ${dataReq.url} - ${error}`);
       }
       const readings: IPlotDatum[] = await postResult.json();
-      const [firstReading] = readings;
       if (apiIsTestUrl) {
         updateTestReadingDateTimes(readings);
       }
-      const { Trend: trend, Value: value } = firstReading;
-      const { timeSinceLastReadingInSeconds, isOldReading } =
-        extractDate(firstReading) || {};
+      const [latestReading] = readings;
+      const { Value: value } = latestReading;
+      const { timeSinceLastReadingInSeconds, readingIsOld } =
+        extractDate(latestReading) || {};
       if (!this.isThisMounted) {
         return;
       }
       this.setState({
         response: 'Success',
-        trend,
-        value,
         timeSinceLastReadingInSeconds,
-        isOldReading,
+        readingIsOld: readingIsOld,
         readings,
         plotSettings: meta,
       });
-      if (!isOldReading) {
+      if (!readingIsOld) {
         playAudioIfNeeded(value, meta);
       }
       delayToNextRequestInSeconds =
@@ -142,6 +136,7 @@ class PlotView extends Component<Props, State> {
       delayToNextRequestInSeconds =
         Math.max(2 * 60, delayToNextRequestInSeconds) +
         EXTRA_LATENCY_IN_SECONDS;
+      console.log(delayToNextRequestInSeconds);
       this.failureCount = 0;
       if (apiIsTestUrl) {
         delayToNextRequestInSeconds = 4 * 60 * 60;
@@ -162,16 +157,16 @@ class PlotView extends Component<Props, State> {
 
   render() {
     const {
-      value,
-      trend,
       readings,
       lastUrl,
       response,
-      isOldReading,
+      readingIsOld,
       plotWidth,
       plotHeight,
       plotSettings,
     } = this.state;
+    const [latestReading] = readings ?? [];
+    const { Trend: trend, Value: latestValue } = latestReading ?? {};
     return (
       <View
         style={styles.container}
@@ -198,14 +193,14 @@ class PlotView extends Component<Props, State> {
         <Overlay
           width={plotWidth}
           height={plotHeight}
-          value={value}
+          value={latestValue}
           trend={trend}
-          isOldReading={isOldReading ?? false}
+          readingIsOld={readingIsOld ?? false}
         />
         <Text style={styles.response}>
           {response.includes('Error') ? lastUrl + ' ' : ''}
           {response}
-          {isOldReading && ' Outdated Reading'}
+          {readingIsOld && ' Outdated Reading'}
         </Text>
       </View>
     );
