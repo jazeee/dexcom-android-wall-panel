@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Button, StyleSheet, Text, View } from 'react-native';
 
 import { COLORS } from '../common/colors';
@@ -7,23 +6,20 @@ import { GlucoseGraph } from './components/GlucoseGraph';
 import { Overlay } from './components/Overlay';
 import { useNavigation } from '@react-navigation/native';
 import { useReadings } from './useReadings';
+import { IPlotDimensions } from './types';
 
 const plotMargin = 4;
 const plotMarginX2 = plotMargin * 2;
 
-interface IPlotDimensions {
-  plotWidth: number;
-  plotHeight: number;
+interface Props {
+  plotDimensions: IPlotDimensions;
 }
 
-export function PlotView() {
+export function PlotView(props: Props) {
   const { navigate } = useNavigation();
   const { apiIsLoading, apiUrlsError, readings, readingsError, plotSettings } =
     useReadings();
-  const [plotDimensions, setPlotDimensions] = useState<IPlotDimensions>({
-    plotWidth: 0,
-    plotHeight: 0,
-  });
+  const { plotDimensions } = props;
   const { plotWidth, plotHeight } = plotDimensions;
 
   if (apiIsLoading) {
@@ -53,12 +49,7 @@ export function PlotView() {
   const readingIsOld =
     latestReading && extractDate(latestReading)?.readingIsOld;
   return (
-    <View
-      style={styles.container}
-      onLayout={(event) => {
-        const { width, height } = event.nativeEvent.layout;
-        setPlotDimensions({ plotWidth: width, plotHeight: height });
-      }}>
+    <View style={styles.container}>
       {plotWidth > plotMarginX2 && plotHeight > plotMarginX2 && (
         <View
           style={{
@@ -97,6 +88,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#000',
+    width: '100%',
+    height: '100%',
   },
   overlay: {
     position: 'absolute',
