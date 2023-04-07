@@ -23,7 +23,7 @@ interface Props {
 
 interface State {
   readings?: IPlotDatum[];
-  response: string;
+  logContent: string;
   plotWidth: number;
   plotHeight: number;
   plotSettings: IPlotSettings;
@@ -38,7 +38,7 @@ class PlotView extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      response: '',
+      logContent: '',
       plotSettings: DEFAULT_META,
       plotWidth: 100,
       plotHeight: 100,
@@ -62,7 +62,7 @@ class PlotView extends Component<Props, State> {
       prevSettings.sourceUrl !== settings.sourceUrl
     ) {
       this.setState(
-        { readings: [], response: 'Loading...' },
+        { readings: [], logContent: 'Loading...' },
         this.getData.bind(this),
       );
     }
@@ -112,7 +112,7 @@ class PlotView extends Component<Props, State> {
         return;
       }
       this.setState({
-        response: 'Success',
+        logContent: 'Success',
         readings,
         plotSettings: meta,
       });
@@ -131,7 +131,7 @@ class PlotView extends Component<Props, State> {
       }
     } catch (error: any) {
       console.log(error);
-      this.setState({ response: error.toString() });
+      this.setState({ logContent: error.toString() });
       this.failureCount += 1;
     }
     if (this.lastTimeoutId !== 0) {
@@ -144,7 +144,7 @@ class PlotView extends Component<Props, State> {
   };
 
   render() {
-    const { readings, response, plotWidth, plotHeight, plotSettings } =
+    const { readings, logContent, plotWidth, plotHeight, plotSettings } =
       this.state;
     const [latestReading] = readings ?? [];
     const { Trend: trend, Value: latestValue } = latestReading ?? {};
@@ -180,8 +180,8 @@ class PlotView extends Component<Props, State> {
           trend={trend}
           readingIsOld={readingIsOld ?? false}
         />
-        <Text style={styles.response}>
-          {response}
+        <Text style={styles.logContent}>
+          {logContent}
           {readingIsOld && ' Outdated Reading'}
         </Text>
       </View>
@@ -243,7 +243,7 @@ export function WrappedPlotView() {
   if (apiUrlsAreLoading || authKeyIsLoading) {
     return (
       <View>
-        <Text style={styles.response}>Loading...</Text>
+        <Text style={styles.logContent}>Loading...</Text>
       </View>
     );
   }
@@ -275,7 +275,7 @@ const styles = StyleSheet.create({
     fontSize: 64,
     color: COLORS.primary,
   },
-  response: {
+  logContent: {
     fontSize: 16,
     color: COLORS.primary,
     position: 'absolute',
