@@ -25,8 +25,6 @@ interface Props {
 }
 
 interface State {
-  timeSinceLastReadingInSeconds: number | undefined;
-  readingIsOld: boolean | undefined;
   readings?: IPlotDatum[];
   response: string;
   plotWidth: number;
@@ -43,8 +41,6 @@ class PlotView extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      timeSinceLastReadingInSeconds: undefined,
-      readingIsOld: undefined,
       response: '',
       plotSettings: DEFAULT_META,
       plotWidth: 100,
@@ -120,8 +116,6 @@ class PlotView extends Component<Props, State> {
       }
       this.setState({
         response: 'Success',
-        timeSinceLastReadingInSeconds,
-        readingIsOld: readingIsOld,
         readings,
         plotSettings: meta,
       });
@@ -153,16 +147,12 @@ class PlotView extends Component<Props, State> {
   };
 
   render() {
-    const {
-      readings,
-      response,
-      readingIsOld,
-      plotWidth,
-      plotHeight,
-      plotSettings,
-    } = this.state;
+    const { readings, response, plotWidth, plotHeight, plotSettings } =
+      this.state;
     const [latestReading] = readings ?? [];
     const { Trend: trend, Value: latestValue } = latestReading ?? {};
+    const readingIsOld =
+      latestReading && extractDate(latestReading)?.readingIsOld;
     return (
       <View
         style={styles.container}
