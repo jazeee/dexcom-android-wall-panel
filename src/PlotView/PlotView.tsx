@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, useState } from 'react';
 import { Button, StyleSheet, Text, View } from 'react-native';
 
 import { COLORS } from '../common/colors';
@@ -25,64 +25,58 @@ interface Props {
   logContent: string;
 }
 
-interface State {
+interface IPlotDimensions {
   plotWidth: number;
   plotHeight: number;
 }
 
-class PlotView extends Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      plotWidth: 0,
-      plotHeight: 0,
-    };
-  }
-
-  render() {
-    const { readings, plotSettings, logContent } = this.props;
-    const { plotWidth, plotHeight } = this.state;
-    const [latestReading] = readings ?? [];
-    const { Trend: trend, Value: latestValue } = latestReading ?? {};
-    const readingIsOld =
-      latestReading && extractDate(latestReading)?.readingIsOld;
-    return (
-      <View
-        style={styles.container}
-        onLayout={(event) => {
-          const { width, height } = event.nativeEvent.layout;
-          this.setState({ plotWidth: width, plotHeight: height });
-        }}>
-        {plotWidth > plotMarginX2 && plotHeight > plotMarginX2 && (
-          <View
-            style={{
-              ...styles.overlay,
-              width: plotWidth - plotMarginX2,
-              height: plotHeight - plotMarginX2,
-            }}>
-            <GlucoseGraph
-              width={plotWidth - plotMarginX2}
-              height={plotHeight - plotMarginX2}
-              readings={readings}
-              plotSettings={plotSettings}
-            />
-            <Text style={styles.overlayContent}>Loading...</Text>
-          </View>
-        )}
-        <Overlay
-          width={plotWidth}
-          height={plotHeight}
-          value={latestValue}
-          trend={trend}
-          readingIsOld={readingIsOld ?? false}
-        />
-        <Text style={styles.logContent}>
-          {logContent}
-          {readingIsOld && ' Outdated Reading'}
-        </Text>
-      </View>
-    );
-  }
+function PlotView(props: Props) {
+  const [plotDimensions, setPlotDimensions] = useState<IPlotDimensions>({
+    plotWidth: 0,
+    plotHeight: 0,
+  });
+  const { plotWidth, plotHeight } = plotDimensions;
+  const { readings, plotSettings, logContent } = props;
+  const [latestReading] = readings ?? [];
+  const { Trend: trend, Value: latestValue } = latestReading ?? {};
+  const readingIsOld =
+    latestReading && extractDate(latestReading)?.readingIsOld;
+  return (
+    <View
+      style={styles.container}
+      onLayout={(event) => {
+        const { width, height } = event.nativeEvent.layout;
+        setPlotDimensions({ plotWidth: width, plotHeight: height });
+      }}>
+      {plotWidth > plotMarginX2 && plotHeight > plotMarginX2 && (
+        <View
+          style={{
+            ...styles.overlay,
+            width: plotWidth - plotMarginX2,
+            height: plotHeight - plotMarginX2,
+          }}>
+          <GlucoseGraph
+            width={plotWidth - plotMarginX2}
+            height={plotHeight - plotMarginX2}
+            readings={readings}
+            plotSettings={plotSettings}
+          />
+          <Text style={styles.overlayContent}>Loading...</Text>
+        </View>
+      )}
+      <Overlay
+        width={plotWidth}
+        height={plotHeight}
+        value={latestValue}
+        trend={trend}
+        readingIsOld={readingIsOld ?? false}
+      />
+      <Text style={styles.logContent}>
+        {logContent}
+        {readingIsOld && ' Outdated Reading'}
+      </Text>
+    </View>
+  );
 }
 
 export function WrappedPlotView() {
@@ -197,6 +191,7 @@ export function WrappedPlotView() {
       if (apiIsTestUrl) {
         updateTestReadingDateTimes(apiReadings);
       }
+      console.debug('Latest Reading', apiReadings[0]);
       return apiReadings;
     },
     onSuccess: (data) => {
