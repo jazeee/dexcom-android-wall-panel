@@ -31,12 +31,13 @@ export function GlucoseGraph(props: Props) {
     units, // 'mg/dL'
   } = plotSettings;
   const calcTimePosition = (value: number) => {
-    if (width < 300) {
-      // Leave enough space for 20 minutes of future data.
-      return width - (value + FUTURE_TIME_IN_SECONDS / 2) / 20;
+    let scaleRatio = height / 6000;
+    if (width < 600) {
+      // Leave enough space for 5 minutes of future data.
+      return width - (value + FUTURE_TIME_IN_SECONDS / 8) * scaleRatio;
     }
     // Leave enough space for 40 minutes of future data.
-    return width - (value + FUTURE_TIME_IN_SECONDS) / 20;
+    return width - (value + FUTURE_TIME_IN_SECONDS) * scaleRatio;
   };
   const calcValuePosition = (value: number) => {
     let heightRatio = 1 - (value - minScale) / (maxScale - minScale);
@@ -44,6 +45,7 @@ export function GlucoseGraph(props: Props) {
     heightRatio = Math.min(1, heightRatio);
     return height * heightRatio;
   };
+
   const readingData = readings.map(extractData.bind(null, plotSettings));
   const [lastReadingDatum] = readingData;
   const { color: lastReadingColor, isInRange } = lastReadingDatum;
