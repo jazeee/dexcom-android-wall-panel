@@ -18,6 +18,8 @@ Uses React Native
 1. Either shake device or
 2. `adb shell input keyevent 82`
 
+### Generate images from largest using `res/gen-images.sh`
+
 ### Curl notes
 ```
 curl   -H "Accept: application/json" -H "Content-Type: application/json"   -H "User-Agent: Dexcom Share/3.0.2.11 CFNetwork/711.2.23 Darwin/14.0.0"   -X POST https://share1.dexcom.com/ShareWebServices/Services/General/LoginPublisherAccountByName   -d '{"applicationId":"d8665ade-9673-4e27-9ff6-92db4ce13d13","accountName": "jazeee", "password": ""}'
