@@ -20,6 +20,7 @@ import { COLORS } from '../common/colors';
 import DateTime from '../common/components/DateTime';
 import { extractDate } from './utils';
 import GlucoseGraph from './components/GlucoseGraph.js';
+import { safePlayAudio } from './playAudio';
 
 const plotMargin = 4;
 const plotMarginX2 = plotMargin * 2;
@@ -42,6 +43,7 @@ type State = {
 };
 
 const DEFAULT_SOURCE = 'dx';
+const LOW_ALARM_VALUE = 55;
 
 export default class PlotView extends Component<Props, State> {
   static navigationOptions = ({ navigation }) => {
@@ -83,6 +85,7 @@ export default class PlotView extends Component<Props, State> {
     };
     this.authKey = '';
     this.lastUpdatedAuthKey = 0;
+    this.lastAlarmTime = 0;
     this.lastTimeoutId = 0;
     this.failureCount = 0;
   }
@@ -244,6 +247,12 @@ export default class PlotView extends Component<Props, State> {
         isOldReading,
         readings,
       });
+      if (!isOldReading && value <= LOW_ALARM_VALUE) {
+        if (currentTime - this.lastAlarmTime >= 30 * 60 * 1000) {
+          this.lastAlarmTime = currentTime;
+          safePlayAudio('eat_please.mp3');
+        }
+      }
       delayToNextRequestInSeconds = 5 * 60 - timeSinceLastReadingInSeconds;
       delayToNextRequestInSeconds =
         Math.max(2 * 60, delayToNextRequestInSeconds) +

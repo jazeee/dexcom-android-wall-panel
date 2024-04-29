@@ -23,7 +23,7 @@ type State = {};
 
 const MIN_Y_VALUE = 30;
 const MAX_Y_VALUE = 250;
-const FUTURE_TIME_IN_SECONDS = 40 * 60;
+const FUTURE_TIME_IN_SECONDS = 25 * 60;
 
 export default class GlucoseGraph extends Component<Props, State> {
   render() {
