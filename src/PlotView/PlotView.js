@@ -27,6 +27,7 @@ type State = {
   timeSinceLastReadingInSeconds: number,
   isOldReading: boolean,
   readings: PropTypes.array,
+  lastUrl: '',
   response: '',
   width: number,
   height: number,
@@ -44,6 +45,7 @@ export default class PlotView extends Component<Props, State> {
       trend: -1,
       timeSinceLastReadingInSeconds: undefined,
       isOldReading: undefined,
+      lastUrl: '',
       response: '',
       apiUrls: null,
       isSetupDialogVisible: false,
@@ -87,10 +89,13 @@ export default class PlotView extends Component<Props, State> {
     return new Promise(async (resolve, reject) => {
       try {
         console.log(`Requesting from ${sourceUrl}`);
-        const response = await fetch(`${sourceUrl}/urls.json`);
-        const { status } = response;
-        if (status !== 200) {
-          throw new Error(await response.text());
+        const lastUrl = `${sourceUrl}/urls.json`;
+        this.setState({ lastUrl });
+        const response = await fetch(lastUrl);
+        const { status, ok } = response;
+        if (!ok) {
+          const error = await response.text();
+          throw new Error(`${status}: ${error}`);
         }
         const apiUrls = await response.json();
         if (!apiUrls) {
@@ -140,8 +145,10 @@ export default class PlotView extends Component<Props, State> {
         this.lastUpdatedAuthKey = currentTime;
         // Load auth key
         const { method = 'POST' } = authReq;
+        this.setState({ lastUrl: authReq.url });
         const postResult = await fetch(authReq.url, {
           method,
+          mode: 'cors',
           headers: authReq.headers,
           body:
             method !== 'GET'
@@ -152,25 +159,27 @@ export default class PlotView extends Component<Props, State> {
                 })
               : undefined,
         });
-        const { status } = postResult;
-        if (status !== 200) {
-          throw new Error(`Unable to ${method} Username`);
+        const { status, ok } = postResult;
+        if (!ok) {
+          throw new Error(`${status}: Unable to ${method} Username`);
         }
         this.authKey = await postResult.json();
       }
       if (!this.authKey) {
         throw new Error('Unable to load auth key');
       }
+      this.setState({ lastUrl: dataReq.url });
       const postResult = await fetch(
         `${dataReq.url}?sessionId=${this.authKey}&minutes=1440&maxCount=100`,
         {
           method: dataReq.method || 'POST',
+          mode: 'cors',
           headers: dataReq.headers,
           body: dataReq.method !== 'GET' ? '' : undefined,
         },
       );
-      const { status } = postResult;
-      if (status !== 200) {
+      const { status, ok } = postResult;
+      if (!ok) {
         const error = await postResult.text();
         throw new Error(`${status}: ${dataReq.url} - ${error}`);
       }
@@ -232,6 +241,7 @@ export default class PlotView extends Component<Props, State> {
       value,
       trend,
       readings,
+      lastUrl,
       response,
       isOldReading,
       width,
@@ -269,6 +279,7 @@ export default class PlotView extends Component<Props, State> {
           isOldReading={isOldReading}
         />
         <Text style={styles.response}>
+          {response.includes('Error') ? lastUrl + ' ' : ''}
           {response}
           {isOldReading && ' Outdated Reading'}
         </Text>
