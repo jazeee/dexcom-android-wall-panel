@@ -13,6 +13,7 @@ import { extractDate, getIconName } from './utils';
 import { DEFAULT_META } from './constants';
 import GlucoseGraph from './components/GlucoseGraph.js';
 import { playAudioIfNeeded } from './playAudio';
+import { isTestApi } from '../UserSettings/utils';
 
 const plotMargin = 4;
 const plotMarginX2 = plotMargin * 2;
@@ -111,21 +112,23 @@ export default class PlotView extends Component<Props, State> {
       return;
     }
     const { username, password, sourceUrl } = this.props.state;
-    if (!username || !password) {
-      this.setState({ response: 'Need username and password!' });
-      this.props.navigation.navigate('SettingsView');
-      return;
-    }
+    const usingTestApi = isTestApi(sourceUrl);
     if (!sourceUrl) {
       this.setState({ response: 'Need source!' });
       this.props.navigation.navigate('SettingsView');
       return;
     }
+    if (!usingTestApi) {
+      if (!username || !password || username === 'sample') {
+        this.setState({ response: 'Need username and password!' });
+        this.props.navigation.navigate('SettingsView');
+        return;
+      }
+    }
     let delayToNextRequestInSeconds = 5 * 60;
     const currentTime = Date.now();
     try {
       let { apiUrls } = this.state;
-      const isSampleUser = sourceUrl && sourceUrl.includes('sample');
       if (!apiUrls) {
         apiUrls = await this.getApiUrls(sourceUrl);
       }
@@ -172,7 +175,7 @@ export default class PlotView extends Component<Props, State> {
       }
       const readings = await postResult.json();
       const [firstReading] = readings;
-      if (isSampleUser) {
+      if (usingTestApi) {
         const firstReadingDate = extractDate(firstReading);
         readings.forEach(reading => {
           const readingDate = extractDate(reading);
@@ -190,7 +193,7 @@ export default class PlotView extends Component<Props, State> {
         return;
       }
       this.setState({
-        response: `Success for user: ${isSampleUser ? 'Test user' : username}`,
+        response: `Success for user: ${usingTestApi ? 'Test user' : username}`,
         trend,
         value,
         timeSinceLastReadingInSeconds,
@@ -206,7 +209,7 @@ export default class PlotView extends Component<Props, State> {
         Math.max(2 * 60, delayToNextRequestInSeconds) +
         EXTRA_LATENCY_IN_SECONDS;
       this.failureCount = 0;
-      if (isSampleUser) {
+      if (usingTestApi) {
         delayToNextRequestInSeconds = 4 * 60 * 60;
       }
     } catch (error) {

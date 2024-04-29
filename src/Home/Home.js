@@ -9,7 +9,7 @@ import { StyleSheet, Text, View } from 'react-native';
 const Home = () => {
   return (
     <View style={styles.container}>
-      <Text style={styles.welcome}>Jazeee Data Monitor v1.5.0</Text>
+      <Text style={styles.welcome}>Jazeee Data Monitor v1.5.1</Text>
       <Text style={styles.description}>
         This application reads data from an API and displays it in an always-on
         graph.
