@@ -93,6 +93,7 @@ export default class GlucoseGraph extends Component<Props, State> {
             timeSinceLastReadingInSeconds,
             color,
             isProjected,
+            projectedIndex,
             opacity = 1.0,
           } = datum;
           const x = calcTimePosition(timeSinceLastReadingInSeconds);
@@ -110,13 +111,13 @@ export default class GlucoseGraph extends Component<Props, State> {
                 fill={color}
                 opacity={opacity}
               />
-              {!isProjected && index % 5 === 0 && (
+              {(projectedIndex === 5 || (!isProjected && index % 5 === 0)) && (
                 <SvgText
                   x={x}
                   y={y}
                   color={color}
                   textAnchor={textAnchor}
-                  opacity={1}
+                  opacity={isProjected ? 0.8 : 1.0}
                   yOffset={8}
                   fontSize={16}>
                   {value}

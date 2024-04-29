@@ -4,7 +4,14 @@ const READING_COUNT = 10;
 const PROJECTED_COUNT = 10;
 export const projectReadings = readingData => {
   const lastReadings = readingData.slice(0, READING_COUNT);
-  const arrayPairs = lastReadings.map(
+  const weightedLastReadings = [];
+  // Weigh newest readings more
+  for (let i = 0; i < lastReadings.length; i += 1) {
+    for (let j = 0; j < READING_COUNT - i; j += 1) {
+      weightedLastReadings.push(lastReadings[i]);
+    }
+  }
+  const arrayPairs = weightedLastReadings.map(
     ({ value, timeSinceLastReadingInSeconds }) => [
       timeSinceLastReadingInSeconds,
       value,
@@ -42,11 +49,11 @@ export const projectReadings = readingData => {
       ...latestDatum,
       value,
       color: '#666',
-      opacity: 0.4 * (1 - index / (PROJECTED_COUNT + 4)),
+      opacity: 0.6 * (1 - index / (PROJECTED_COUNT - 4)),
       timeSinceLastReadingInSeconds,
       timeSinceLastReadingInMinutes: timeSinceLastReadingInSeconds / 60,
       isProjected: true,
-      index,
+      projectedIndex: index,
     });
   }
   return projectedReadings;
