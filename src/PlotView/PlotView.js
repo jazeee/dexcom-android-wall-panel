@@ -5,20 +5,13 @@
  */
 
 import React, { Component, Fragment } from 'react';
-import {
-  AsyncStorage,
-  StyleSheet,
-  Text,
-  Button,
-  ScrollView,
-  View,
-} from 'react-native';
-import AccountDialog from './AccountDialog.js';
+import { StyleSheet, Text, Button, ScrollView, View } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import { COLORS } from '../common/colors';
+import { SettingsConsumer } from '../UserSettings/context';
 import DateTime from '../common/components/DateTime';
-import { extractDate } from './utils';
+import { extractDate, getIconName } from './utils';
 import GlucoseGraph from './components/GlucoseGraph.js';
 import { safePlayAudio } from './playAudio';
 
@@ -28,18 +21,15 @@ const EXTRA_LATENCY_IN_SECONDS = 10 + 10 * Math.random();
 type Props = {};
 
 type State = {
-  username: string,
-  password: string,
   sourceUrls: object,
-  isSetupDialogVisible: boolean,
   value: number,
   trend: number,
   timeSinceLastReadingInSeconds: number,
   isOldReading: boolean,
   readings: PropTypes.array,
   response: '',
-  width: 0,
-  height: 0,
+  width: number,
+  height: number,
 };
 
 const DEFAULT_SOURCE = 'dx';
@@ -47,31 +37,7 @@ const LOW_ALARM_VALUE = 55;
 // See https://github.com/facebook/react-native/issues/12981
 console.ignoredYellowBox = ['Setting a timer'];
 
-export default class PlotView extends Component<Props, State> {
-  static navigationOptions = ({ navigation }) => {
-    return {
-      headerTitle: () => (
-        <Fragment>
-          <DateTime style={styles.dateTime} />
-        </Fragment>
-      ),
-      headerRight: (
-        <Fragment>
-          <Button
-            color={COLORS.primary}
-            onPress={() => navigation.getParam('setIsSetupDialogVisible')(true)}
-            title={'Set up Account'}
-            accessibilityLabel="Set up Account"
-          />
-          <Button
-            color={COLORS.primary}
-            onPress={() => navigation.navigate('Home')}
-            title="Home"
-          />
-        </Fragment>
-      ),
-    };
-  };
+class PlotView extends Component<Props, State> {
   constructor(props) {
     super(props);
     this.state = {
@@ -80,8 +46,6 @@ export default class PlotView extends Component<Props, State> {
       timeSinceLastReadingInSeconds: undefined,
       isOldReading: undefined,
       response: '',
-      username: '',
-      password: '',
       sourceUrls: {},
       isSetupDialogVisible: false,
     };
@@ -94,11 +58,23 @@ export default class PlotView extends Component<Props, State> {
 
   componentDidMount = () => {
     this.isThisMounted = true;
-    this.updateCredsFromStore();
-    this.props.navigation.setParams({
-      setIsSetupDialogVisible: this.setIsSetupDialogVisible,
-    });
+    this.getData(true);
   };
+
+  componentDidUpdate = prevProps => {
+    const { state: prevState } = prevProps;
+    const { state } = this.props;
+    if (
+      prevState.username !== state.username ||
+      prevState.password !== state.password
+    ) {
+      this.setState(
+        { readings: [], value: 0, isOldReading: true },
+        this.getData.bind(this, true),
+      );
+    }
+  };
+
   componentWillUnmount = () => {
     this.isThisMounted = false;
     if (this.lastTimeoutId !== 0) {
@@ -106,32 +82,6 @@ export default class PlotView extends Component<Props, State> {
     }
     this.lastTimeoutId = 0;
   };
-  updateCredsFromStore = async () => {
-    try {
-      const username = (await AsyncStorage.getItem('@jazcom:username')) || '';
-      const password = (await AsyncStorage.getItem('@jazcom:password')) || '';
-      this.setState(
-        { username, password, response: 'Loaded user/pass' },
-        this.getData,
-      );
-    } catch (error) {
-      this.setState({ response: error.toString() });
-    }
-  };
-
-  setCreds = async (username, password) => {
-    try {
-      await AsyncStorage.setItem('@jazcom:username', username);
-      await AsyncStorage.setItem('@jazcom:password', password);
-    } catch (error) {
-      this.setState({ response: error.toString() });
-    }
-    this.lastUpdatedAuthKey = 0;
-    this.setState({ username, password, response: 'Loading...' }, this.getData);
-  };
-
-  setIsSetupDialogVisible = isSetupDialogVisible =>
-    this.setState({ isSetupDialogVisible });
 
   getUrls = async (source = DEFAULT_SOURCE) => {
     return new Promise(async (resolve, reject) => {
@@ -165,13 +115,14 @@ export default class PlotView extends Component<Props, State> {
     });
   };
 
-  getData = async () => {
+  getData = async (forceReload = false) => {
     if (!this.isThisMounted) {
       return;
     }
-    const { username, password } = this.state;
+    const { username, password } = this.props.state;
     if (!username || !password) {
       this.setState({ response: 'Need username and password!' });
+      this.props.navigation.navigate('SettingsView');
       return;
     }
     let delayToNextRequestInSeconds = 5 * 60;
@@ -185,7 +136,10 @@ export default class PlotView extends Component<Props, State> {
         urls = await this.getUrls(source);
       }
       const { auth: authReq, data: dataReq } = urls;
-      if (currentTime - this.lastUpdatedAuthKey > 45 * 60 * 1000) {
+      if (
+        forceReload ||
+        currentTime - this.lastUpdatedAuthKey > 45 * 60 * 1000
+      ) {
         this.lastUpdatedAuthKey = currentTime;
         // Load auth key
         const { method = 'POST' } = authReq;
@@ -277,37 +231,12 @@ export default class PlotView extends Component<Props, State> {
     );
   };
 
-  getIconName = () => {
-    // https://materialdesignicons.com/
-    switch (this.state.trend) {
-      case 1:
-        return 'arrow-up-thick';
-      case 2:
-        return 'arrow-up';
-      case 3:
-        return 'arrow-top-right';
-      case 4:
-        return 'arrow-right';
-      case 5:
-        return 'arrow-bottom-right';
-      case 6:
-        return 'arrow-down';
-      case 7:
-        return 'arrow-down-thick';
-      default:
-        return 'question';
-    }
-  };
-
   render() {
     const {
       value,
       trend,
       readings,
       response,
-      username,
-      password,
-      isSetupDialogVisible,
       isOldReading,
       width,
       height,
@@ -348,19 +277,11 @@ export default class PlotView extends Component<Props, State> {
             {isOldReading && (
               <Icon name="question" size={width > 480 ? 120 : 80} />
             )}
-            <Icon name={this.getIconName()} size={width > 480 ? 120 : 80} />
+            <Icon name={getIconName(trend)} size={width > 480 ? 120 : 80} />
             {(trend === 1 || trend === 7) && (
               <Icon name={this.getIconName()} size={width > 480 ? 120 : 80} />
             )}
           </Text>
-          {isSetupDialogVisible && (
-            <AccountDialog
-              setCreds={this.setCreds.bind(this)}
-              username={username}
-              password={password}
-              setIsSetupDialogVisible={this.setIsSetupDialogVisible}
-            />
-          )}
         </ScrollView>
         <Text style={styles.response}>
           {response}
@@ -370,6 +291,35 @@ export default class PlotView extends Component<Props, State> {
     );
   }
 }
+
+const WrappedPlotView = props => {
+  return (
+    <SettingsConsumer>
+      {({ state }) => <PlotView {...props} state={state} />}
+    </SettingsConsumer>
+  );
+};
+
+WrappedPlotView.navigationOptions = ({ navigation }) => {
+  return {
+    headerTitle: () => (
+      <Fragment>
+        <DateTime style={styles.dateTime} />
+      </Fragment>
+    ),
+    headerRight: (
+      <Fragment>
+        <Button
+          color={COLORS.primary}
+          onPress={() => navigation.navigate('SettingsView')}
+          title="Settings"
+        />
+      </Fragment>
+    ),
+  };
+};
+
+export default WrappedPlotView;
 
 const styles = StyleSheet.create({
   container: {
@@ -387,7 +337,7 @@ const styles = StyleSheet.create({
     opacity: 1,
   },
   overlayContent: {
-    fontSize: 150,
+    fontSize: 50,
     color: 'white',
     opacity: 0.2,
   },

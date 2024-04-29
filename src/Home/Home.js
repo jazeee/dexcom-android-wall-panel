@@ -18,7 +18,7 @@ export default class Home extends Component<Props> {
   render() {
     return (
       <View style={styles.container}>
-        <Text style={styles.welcome}>Jazeee Data Monitor v1.3.0</Text>
+        <Text style={styles.welcome}>Jazeee Data Monitor v1.4.0</Text>
         <Text style={styles.description}>
           This application reads data from an API and displays it in an
           always-on graph.
@@ -35,6 +35,10 @@ export default class Home extends Component<Props> {
         <Button
           onPress={() => this.props.navigation.navigate('PlotView')}
           title="Plot View"
+        />
+        <Button
+          onPress={() => this.props.navigation.navigate('SettingsView')}
+          title="Settings"
         />
       </View>
     );

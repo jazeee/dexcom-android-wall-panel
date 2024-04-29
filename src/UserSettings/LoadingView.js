@@ -1,8 +1,8 @@
 import React from 'react';
 import { ActivityIndicator, StatusBar, View } from 'react-native';
 
-import { loadSettings } from '../UserSettings/storage';
-import { SettingsConsumer } from '../UserSettings/context';
+import { loadSettings } from './storage';
+import { SettingsConsumer } from './context';
 
 class LoadingView extends React.Component {
   componentDidMount() {
@@ -15,7 +15,7 @@ class LoadingView extends React.Component {
       this.props.setState(settings);
       this.props.navigation.navigate(settings.username ? 'PlotView' : 'Home');
     } catch (error) {
-      console.error(error);
+      console.debug('Error in loading settings', error);
     }
   };
 
