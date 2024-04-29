@@ -353,13 +353,14 @@ export default class PlotView extends Component<Props, State> {
               <Icon name={this.getIconName()} size={width > 480 ? 120 : 80} />
             )}
           </Text>
-          <AccountDialog
-            setCreds={this.setCreds.bind(this)}
-            username={username}
-            password={password}
-            isSetupDialogVisible={isSetupDialogVisible}
-            setIsSetupDialogVisible={this.setIsSetupDialogVisible}
-          />
+          {isSetupDialogVisible && (
+            <AccountDialog
+              setCreds={this.setCreds.bind(this)}
+              username={username}
+              password={password}
+              setIsSetupDialogVisible={this.setIsSetupDialogVisible}
+            />
+          )}
         </ScrollView>
         <Text style={styles.response}>
           {response}
