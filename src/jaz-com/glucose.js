@@ -111,10 +111,10 @@ export class JazComData extends Component<Props, State> {
 
   setIsSetupDialogVisible = (isSetupDialogVisible) => this.setState({ isSetupDialogVisible });
 
-  getUrls = async () => {
+  getUrls = async (source = "dx") => {
     return new Promise(async (resolve, reject) => {
       try {
-        const response = await fetch("https://jazcom.jazeee.com/dx/urls.json");
+        const response = await fetch(`https://jazcom.jazeee.com/${source}/urls.json`);
         const { status } = response;
         if (status !== 200) {
           throw new Error(await postResult.text());
@@ -146,8 +146,10 @@ export class JazComData extends Component<Props, State> {
     const currentTime = new Date().getTime();
     try {
       let { urls } = this.state;
+      const isSampleUser = username === 'sample';
       if (!urls) {
-        urls = await this.getUrls();
+        const source = isSampleUser ? 'sample': undefined;
+        urls = await this.getUrls(source);
       }
       const {
         auth: authReq,
@@ -157,13 +159,13 @@ export class JazComData extends Component<Props, State> {
         this.lastUpdatedAuthKey = currentTime;
         // Load auth key
         const postResult = await fetch(authReq.url, {
-            method: "POST",
+            method: authReq.method || "POST",
             headers: authReq.headers,
-            body: JSON.stringify({
+            body: authReq.method !== "GET" ? JSON.stringify({
               ...authReq.bodyBase,
               accountName: username,
               password,
-            })
+            }): undefined,
           });
           const { status } = postResult;
           if (status !== 200) {
@@ -175,9 +177,9 @@ export class JazComData extends Component<Props, State> {
         throw new Error("Unable to load auth key");
       }
       const postResult = await fetch(`${dataReq.url}?sessionId=${this.authKey}&minutes=1440&maxCount=100`, {
-        method: "POST",
+        method: dataReq.method || "POST",
         headers: dataReq.headers,
-        body: '',
+        body: dataReq.method !== "GET" ? '' : undefined,
       });
       const { status } = postResult;
       if (status !== 200) {
@@ -185,6 +187,14 @@ export class JazComData extends Component<Props, State> {
       }
       const readings = await postResult.json();
       const [firstReading] = readings;
+      if (isSampleUser) {
+        const firstReadingDate = extractDate(firstReading);
+        for (reading of readings) {
+          const readingDate = extractDate(reading);
+          const updatedTimeInMilliseconds = Date.now() + readingDate.timeInMilliseconds - firstReadingDate.timeInMilliseconds;
+          reading.ST = `/Date(${updatedTimeInMilliseconds})/`;
+        }
+      }
       const { Trend: trend, Value: value } = firstReading;
       const { timeSinceLastReadingInSeconds, isOldReading } = extractDate(firstReading) || {};
       if (!this.isThisMounted) {
@@ -201,6 +211,9 @@ export class JazComData extends Component<Props, State> {
       delayToNextRequestInSeconds = (5 * 60) - timeSinceLastReadingInSeconds;
       delayToNextRequestInSeconds = Math.max(2 * 60, delayToNextRequestInSeconds) + EXTRA_LATENCY_IN_SECONDS;
       this.failureCount = 0;
+      if (isSampleUser) {
+        delayToNextRequestInSeconds = 4 * 60 * 60;
+      }
     } catch (error) {
       console.log(error);
       this.setState({ response: error.toString() });
