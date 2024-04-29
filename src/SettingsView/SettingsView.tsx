@@ -82,8 +82,6 @@ export function SettingsView() {
   );
 }
 
-export default SettingsView;
-
 const styles = StyleSheet.create({
   form: {
     display: 'flex',

@@ -42,9 +42,8 @@ export function DateTime(props: Props) {
 
 const styles = StyleSheet.create({
   dateTime: {
-    fontSize: 20,
+    fontSize: 32,
     textAlign: 'center',
-    margin: 10,
     color: COLORS.primary,
   },
 });
