@@ -2,14 +2,14 @@
 
 echo "See https://facebook.github.io/react-native/docs/signed-apk-android"
 
-pushd android
+pushd android || exit
 # Assemble release would generate app-release.apk
 #./gradlew assembleRelease
 # Bundle release is recommended.
 ./gradlew bundleRelease
-popd
+popd || exit
 
-ls -la android/app/build/outputs/bundle/release/app.aab
+ls -la android/app/build/outputs/bundle/release/*.aab
 #
 # echo "Michael Jackson"
 # /opt/android-sdk/build-tools/28.0.3/apksigner sign \
