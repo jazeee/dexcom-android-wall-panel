@@ -6,7 +6,7 @@ import FormTextInput from './components/FormTextInput';
 import SourceUrlPicker from './components/SourceUrlPicker';
 import { isTestApi } from '../UserSettings/utils';
 
-import { saveSettingsState } from '../UserSettings/storage';
+import { storeSettings } from '../UserSettings/storage';
 import { VISITED_SETTINGS_VIEW } from './constants';
 
 class SettingsView extends Component {
@@ -19,14 +19,15 @@ class SettingsView extends Component {
 
   componentDidMount() {
     const { state, setState } = this.props;
-    saveSettingsState(
-      { ...state, initialVisitState: VISITED_SETTINGS_VIEW },
-      setState,
-    );
+    const settings = { ...state, initialVisitState: VISITED_SETTINGS_VIEW };
+    storeSettings(settings);
+    setState(settings);
   }
 
   onAccept = async () => {
-    await saveSettingsState(this.state, this.props.setState);
+    const { state, setState } = this.props;
+    storeSettings(state);
+    setState(state);
     this.props.navigation.navigate('PlotView');
   };
 
@@ -40,7 +41,7 @@ class SettingsView extends Component {
           <Text style={styles.label}>Data Source:</Text>
           <SourceUrlPicker
             sourceUrl={sourceUrl}
-            setSourceUrl={sourceUrl => this.setState({ sourceUrl })}
+            setSourceUrl={(sourceUrl) => this.setState({ sourceUrl })}
           />
         </View>
         {!usingTestApi && (
@@ -52,7 +53,7 @@ class SettingsView extends Component {
                 placeholder="Username"
                 value={username}
                 autoComplete="username"
-                setValue={username => this.setState({ username })}
+                setValue={(username) => this.setState({ username })}
               />
             </View>
             <View style={styles.formField}>
@@ -62,7 +63,7 @@ class SettingsView extends Component {
                 value={password}
                 autoComplete="password"
                 secureTextEntry
-                setValue={password => this.setState({ password })}
+                setValue={(password) => this.setState({ password })}
               />
             </View>
           </>
