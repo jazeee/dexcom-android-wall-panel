@@ -14,13 +14,13 @@ export function extractDate(reading: IPlotDatum): IPlotDatumDateProps | null {
     const timeInSeconds = timeInMilliseconds / 1000;
     const timeSinceLastReadingInSeconds = Date.now() / 1000 - timeInSeconds;
     const timeSinceLastReadingInMinutes = timeSinceLastReadingInSeconds / 60;
-    const isOldReading = timeSinceLastReadingInSeconds > 10 * 60;
+    const readingIsOld = timeSinceLastReadingInSeconds > 10 * 60;
     return {
       timeInMilliseconds,
       timeInSeconds,
       timeSinceLastReadingInSeconds,
       timeSinceLastReadingInMinutes,
-      isOldReading,
+      readingIsOld,
       date: new Date(timeInMilliseconds),
     };
   }
@@ -78,14 +78,14 @@ export function getIconName(trend?: Trend | number) {
 }
 
 export function updateTestReadingDateTimes(readings: IPlotDatum[]) {
-  const [firstReading] = readings;
-  const firstReadingDate = extractDate(firstReading);
+  const [latestReading] = readings;
+  const latestReadingDate = extractDate(latestReading);
   readings.forEach((reading: IPlotDatum) => {
     const readingDate = extractDate(reading);
     const updatedTimeInMilliseconds =
       Date.now() +
       (readingDate?.timeInMilliseconds ?? 0) -
-      (firstReadingDate?.timeInMilliseconds ?? 0);
+      (latestReadingDate?.timeInMilliseconds ?? 0);
     reading.ST = `/Date(${updatedTimeInMilliseconds})/`;
   });
 }

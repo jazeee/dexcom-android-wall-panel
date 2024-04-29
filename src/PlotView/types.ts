@@ -21,7 +21,7 @@ export interface IPlotDatumDateProps {
   timeInSeconds?: number;
   timeSinceLastReadingInSeconds?: number;
   timeSinceLastReadingInMinutes?: number;
-  isOldReading?: boolean;
+  readingIsOld?: boolean;
   date?: Date;
 }
 
