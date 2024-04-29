@@ -8,6 +8,8 @@ Uses React Native to show data.
 
 [Amazon App Store](https://www.amazon.com/Jaz-Singh-JazCom-Data-Viewer/dp/B07ZXPBPD4/ref=sr_1_fkmr0_1)
 
+[APK](https://github.com/jazeee/dexcom-android-wall-panel/releases/download/v2.1.6/app-release.apk)
+
 Example:
 
 ![Alt text](app-screen.png?raw=true "Screenshot")
