@@ -33,7 +33,7 @@ export const projectReadings = readingData => {
       precision: 8,
     },
   );
-  if (rSquared < 0.9) {
+  if (rSquared < 0.8) {
     // Scan for anomalies - do not provide projected data if there are odd steps.
     console.debug(`Not projecting data due to low rSquared: ${rSquared}`);
     return [];
