@@ -18,7 +18,7 @@ export default class Home extends Component<Props> {
   render() {
     return (
       <View style={styles.container}>
-        <Text style={styles.welcome}>Jazeee Data Monitor v1.2.0</Text>
+        <Text style={styles.welcome}>Jazeee Data Monitor v1.3.0</Text>
         <Text style={styles.description}>
           This application reads data from an API and displays it in an
           always-on graph.
