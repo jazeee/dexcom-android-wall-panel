@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#222',
   },
   welcome: {
-    fontSize: 40,
+    fontSize: 20,
     textAlign: 'center',
     margin: 10,
     color: "#9cf",
