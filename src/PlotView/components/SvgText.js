@@ -1,7 +1,5 @@
 import React from 'react';
-import {
-  Text,
-} from 'react-native-svg';
+import { Text } from 'react-native-svg';
 
 type Props = {
   x: number,
@@ -22,11 +20,10 @@ const SvgText = (props: Props) => {
       y={y - yOffset}
       textAnchor="start"
       opacity={0.5}
-      {...otherProps}
-    >
+      {...otherProps}>
       {children}
     </Text>
-  )
-}
+  );
+};
 
 export default SvgText;
