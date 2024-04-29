@@ -9,7 +9,6 @@ import { Overlay } from './components/Overlay';
 import { playAudioIfNeeded } from './playAudio';
 import { isTestApi } from '../UserSettings/utils';
 import { useSettingsContext } from '../UserSettings/SettingsProvider';
-import { useNavigation } from '@react-navigation/native';
 import { IApiUrl, IPlotDatum, IPlotSettings } from './types';
 import { useQuery } from '@tanstack/react-query';
 
@@ -18,8 +17,6 @@ const plotMarginX2 = plotMargin * 2;
 const EXTRA_LATENCY_IN_SECONDS = 10 + 10 * Math.random();
 interface Props {
   settings: Record<string, string>;
-  // FIXME refactor
-  navigation: any;
   apiUrls: IApiUrl | undefined;
   authKey: string;
 }
@@ -193,7 +190,6 @@ class PlotView extends Component<Props, State> {
 }
 
 export function WrappedPlotView() {
-  const navigation = useNavigation();
   const { settings } = useSettingsContext();
   const { sourceUrl } = settings;
   const { data: apiUrls, isLoading: apiUrlsAreLoading } = useQuery({
@@ -252,12 +248,7 @@ export function WrappedPlotView() {
     );
   }
   return (
-    <PlotView
-      settings={settings}
-      navigation={navigation}
-      apiUrls={apiUrls}
-      authKey={authKey ?? ''}
-    />
+    <PlotView settings={settings} apiUrls={apiUrls} authKey={authKey ?? ''} />
   );
 }
 
