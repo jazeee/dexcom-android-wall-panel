@@ -81,7 +81,15 @@ Output like:
 DT is device, ST is server. Trends used to be numbers, like 4 is flat, 3 is up, 2 is very up, 5 is down, 6 is very down. Now are strings.
 ```
 
-## Install notes
+## Build Notes
+
+Truly speaking you only need to run `./build.sh`
+Once built, you can upload the output file to Google Play Store:
+`android/app/build/outputs/bundle/release/`
+
+You'll then need to do their release process.
+
+### Other Install notes (Obsolete)
 
 Will need a keystore to sign the app. (Must use new file if you forgot the pwd LoL)
 
