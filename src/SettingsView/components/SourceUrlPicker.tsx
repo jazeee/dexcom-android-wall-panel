@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { FlatList, Text, StyleSheet } from 'react-native';
 
 interface IApiSourceUrl {
@@ -11,42 +11,40 @@ interface Props {
   setSourceUrl: (sourceUrl: string) => void;
 }
 
-function SourceUrlPicker(props: Props) {
+const API_SOURCES_URL = 'https://jazcom.jazeee.com/api-sources/urls.json';
+export function SourceUrlPicker(props: Props) {
   const { sourceUrl: currentSourceUrl, setSourceUrl } = props;
-  const [apiSourceUrls, setApiSourceUrls] = useState<IApiSourceUrl[]>([]);
-  const [urlsAreLoading, setUrlsAreLoading] = useState(true);
-  const [error, setError] = useState('');
-  useEffect(() => {
-    async function loadApiSourceUrls() {
-      try {
-        setError('');
-        const response = await fetch(
-          'https://jazcom.jazeee.com/api-sources/urls.json',
-        );
-        setUrlsAreLoading(false);
-        if (response.status !== 200) {
-          throw new Error('Unable to load sources');
-        }
-        const urlContainer = await response.json();
-        const { sources: newApiSourceUrls } = urlContainer || {};
-        console.debug('****Loaded****', newApiSourceUrls);
-        setApiSourceUrls(newApiSourceUrls);
-      } catch (apiError: any) {
-        console.debug(apiError);
-        setError(apiError.toString());
+
+  const {
+    isLoading: urlsAreLoading,
+    data: apiSourceUrls,
+    error,
+  } = useQuery({
+    queryKey: ['api'],
+    queryFn: async () => {
+      const response = await fetch(API_SOURCES_URL);
+      if (response.status !== 200) {
+        throw new Error('Unable to load sources');
       }
-    }
-    loadApiSourceUrls();
-  }, []);
+      const responseValues: {
+        sources: IApiSourceUrl[];
+      } = await response.json();
+      const { sources } = responseValues || {};
+      return sources ?? [];
+    },
+    onError: (apiError: Error) => {
+      console.error(apiError);
+    },
+  });
 
   const loadingMessage = urlsAreLoading ? 'Loading...' : '';
   return (
     <>
       {loadingMessage ? <Text>{loadingMessage}</Text> : null}
-      {error ? <Text>{error}</Text> : null}
+      {error ? <Text>{error.toString()}</Text> : null}
       <FlatList
         style={styles.sourceUrls}
-        data={apiSourceUrls.map((source) => {
+        data={apiSourceUrls?.map((source) => {
           const { name, sourceUrl } = source;
           return {
             key: name,
@@ -73,8 +71,6 @@ function SourceUrlPicker(props: Props) {
     </>
   );
 }
-
-export default SourceUrlPicker;
 
 const styles = StyleSheet.create({
   sourceUrls: {
