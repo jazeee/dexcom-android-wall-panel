@@ -13,7 +13,7 @@ import { createAppContainer } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
 
 import LoadingView from './UserSettings/LoadingView';
-import UserSettings from './UserSettings/UserSettings';
+import SettingsWrapper from './UserSettings/SettingsWrapper';
 import { COLORS } from './common/colors';
 import Home from './Home/Home';
 import PlotView from './PlotView/PlotView';
@@ -44,9 +44,9 @@ export default class App extends React.Component {
   }
   render() {
     return (
-      <UserSettings>
+      <SettingsWrapper>
         <AppContainer />
-      </UserSettings>
+      </SettingsWrapper>
     );
   }
 }
