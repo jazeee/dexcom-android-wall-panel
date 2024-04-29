@@ -1,10 +1,11 @@
+import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 import { Text, StyleSheet } from 'react-native';
 
 import { COLORS } from '../common/colors';
 
-const Header = props => {
-  const { navigation } = props;
+export function SettingsHeaderButtons() {
+  const navigation = useNavigation();
   return (
     <>
       <Text style={styles.homeButton} onPress={() => navigation.goBack()}>
@@ -12,15 +13,14 @@ const Header = props => {
       </Text>
     </>
   );
-};
-
-export default Header;
+}
 
 const styles = StyleSheet.create({
   homeButton: {
     marginLeft: 8,
     marginRight: 8,
     fontSize: 16,
+    fontWeight: 'bold',
     color: COLORS.primary,
   },
 });
