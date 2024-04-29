@@ -16,7 +16,7 @@ const plotMargin = 4;
 const plotMarginX2 = plotMargin * 2;
 const EXTRA_LATENCY_IN_SECONDS = 10 + 10 * Math.random();
 interface Props {
-  state: Record<string, string>;
+  settings: Record<string, string>;
   // FIXME refactor
   navigation: any;
 }
@@ -68,12 +68,12 @@ class PlotView extends Component<Props, State> {
   };
 
   componentDidUpdate = (prevProps: Props) => {
-    const { state: prevState } = prevProps;
-    const { state } = this.props;
+    const { settings: prevSettings } = prevProps;
+    const { settings } = this.props;
     if (
-      prevState.username !== state.username ||
-      prevState.password !== state.password ||
-      prevState.sourceUrl !== state.sourceUrl
+      prevSettings.username !== settings.username ||
+      prevSettings.password !== settings.password ||
+      prevSettings.sourceUrl !== settings.sourceUrl
     ) {
       this.setState(
         { readings: [], value: 0, apiUrls: null, response: 'Loading...' },
@@ -90,7 +90,7 @@ class PlotView extends Component<Props, State> {
     this.lastTimeoutId = 0;
   };
 
-  getApiUrls = async (sourceUrl: string): Promise<any> => {
+  getApiUrls = async (sourceUrl: string): Promise<IApiUrl> => {
     return new Promise(async (resolve, reject) => {
       try {
         console.log(`Requesting from ${sourceUrl}`);
@@ -121,7 +121,7 @@ class PlotView extends Component<Props, State> {
     if (!this.isThisMounted) {
       return;
     }
-    const { username, password, sourceUrl } = this.props.state;
+    const { username, password, sourceUrl } = this.props.settings;
     const usingTestApi = isTestApi(sourceUrl);
     if (!sourceUrl) {
       this.setState({ response: 'Need source!' });
@@ -140,7 +140,7 @@ class PlotView extends Component<Props, State> {
     try {
       let { apiUrls } = this.state;
       if (!apiUrls) {
-        apiUrls = (await this.getApiUrls(sourceUrl)) as IApiUrl;
+        apiUrls = await this.getApiUrls(sourceUrl);
       }
       const {
         auth: authReq,
@@ -301,7 +301,7 @@ class PlotView extends Component<Props, State> {
 export function WrappedPlotView() {
   const { settings } = useSettingsContext();
   const navigation = useNavigation();
-  return <PlotView state={settings} navigation={navigation} />;
+  return <PlotView settings={settings} navigation={navigation} />;
 }
 
 const styles = StyleSheet.create({
