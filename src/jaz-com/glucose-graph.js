@@ -35,7 +35,7 @@ export class GlucoseGraph extends Component<Props, State> {
       return null;
     }
     const calcValuePosition = (value) => {
-      return height - (height * value/250);
+      return height - (height * (value - 30)/250);
     }
     const [lastReading] = readings;
     const lastData = extractData(lastReading);
