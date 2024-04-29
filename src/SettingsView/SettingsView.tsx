@@ -7,20 +7,23 @@ import { SourceUrlPicker } from './components/SourceUrlPicker';
 import { isTestApi } from '../UserSettings/utils';
 
 import { storeSettings } from '../UserSettings/storage';
-import { VISITED_SETTINGS_VIEW } from './constants';
 import { useSettingsContext } from '../UserSettings/SettingsProvider';
 import { useNavigation } from '@react-navigation/native';
+import { SettingName, SettingsStatus } from '../UserSettings/types';
 
 export function SettingsView() {
-  const { settings, setSettings } = useSettingsContext();
+  const { settings, reloadSettings } = useSettingsContext();
   const [localSettings, setLocalSettings] =
-    useState<Record<string, string>>(settings);
+    useState<Record<SettingName, string>>(settings);
   const { username, password, sourceUrl } = localSettings;
   const { navigate } = useNavigation();
 
   async function onAccept() {
-    storeSettings(localSettings);
-    setSettings(localSettings);
+    storeSettings({
+      ...localSettings,
+      [SettingName.SETTINGS_STATE]: SettingsStatus.UPDATED,
+    });
+    await reloadSettings();
     navigate('PlotView' as never);
   }
 

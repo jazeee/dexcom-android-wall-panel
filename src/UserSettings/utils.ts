@@ -1,3 +1,3 @@
-export const isTestApi = (apiSourceUrl: string) => {
+export function isTestApi(apiSourceUrl: string) {
   return apiSourceUrl?.includes('sample');
-};
+}

@@ -12,11 +12,11 @@ export function App(): JSX.Element {
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
-        <NavigationContainer>
-          <SettingsProvider>
+        <SettingsProvider>
+          <NavigationContainer>
             <AppRoutes />
-          </SettingsProvider>
-        </NavigationContainer>
+          </NavigationContainer>
+        </SettingsProvider>
       </QueryClientProvider>
     </ErrorBoundary>
   );
