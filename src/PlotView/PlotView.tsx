@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { COLORS } from '../common/colors';
-import { extractDate } from './utils';
+import { extractDate, updateTestReadingDateTimes } from './utils';
 import { DEFAULT_META } from './constants';
 import { GlucoseGraph } from './components/GlucoseGraph';
 import { Overlay } from './components/Overlay';
@@ -10,7 +10,7 @@ import { playAudioIfNeeded } from './playAudio';
 import { isTestApi } from '../UserSettings/utils';
 import { useSettingsContext } from '../UserSettings/SettingsProvider';
 import { useNavigation } from '@react-navigation/native';
-import { IApiUrl, IPlotDatum, IPlotSettings } from './types';
+import { IApiUrl, IPlotDatum, IPlotSettings, Trend } from './types';
 import { useQuery } from '@tanstack/react-query';
 
 const plotMargin = 4;
@@ -26,7 +26,7 @@ interface Props {
 
 interface State {
   value: number;
-  trend: number;
+  trend: Trend;
   timeSinceLastReadingInSeconds: number | undefined;
   isOldReading: boolean | undefined;
   readings?: IPlotDatum[];
@@ -47,7 +47,7 @@ class PlotView extends Component<Props, State> {
     super(props);
     this.state = {
       value: 0,
-      trend: -1,
+      trend: Trend.Flat,
       timeSinceLastReadingInSeconds: undefined,
       isOldReading: undefined,
       lastUrl: '',
@@ -94,20 +94,8 @@ class PlotView extends Component<Props, State> {
       return;
     }
     const { apiUrls, settings } = this.props;
-    const { username, password, sourceUrl } = settings;
-    const usingTestApi = isTestApi(sourceUrl);
-    if (!sourceUrl) {
-      this.setState({ response: 'Need source!' });
-      this.props.navigation.navigate('SettingsView');
-      return;
-    }
-    if (!usingTestApi) {
-      if (!username || !password) {
-        this.setState({ response: 'Need username and password!' });
-        this.props.navigation.navigate('SettingsView');
-        return;
-      }
-    }
+    const { sourceUrl } = settings;
+    const apiIsTestUrl = isTestApi(sourceUrl);
     let delayToNextRequestInSeconds = 5 * 60;
     try {
       const { data: dataReq, meta = DEFAULT_META } = apiUrls ?? ({} as IApiUrl);
@@ -126,18 +114,10 @@ class PlotView extends Component<Props, State> {
         const error = await postResult.text();
         throw new Error(`${status}: ${dataReq.url} - ${error}`);
       }
-      const readings = await postResult.json();
+      const readings: IPlotDatum[] = await postResult.json();
       const [firstReading] = readings;
-      if (usingTestApi) {
-        const firstReadingDate = extractDate(firstReading);
-        readings.forEach((reading: IPlotDatum) => {
-          const readingDate = extractDate(reading);
-          const updatedTimeInMilliseconds =
-            Date.now() +
-            (readingDate?.timeInMilliseconds ?? 0) -
-            (firstReadingDate?.timeInMilliseconds ?? 0);
-          reading.ST = `/Date(${updatedTimeInMilliseconds})/`;
-        });
+      if (apiIsTestUrl) {
+        updateTestReadingDateTimes(readings);
       }
       const { Trend: trend, Value: value } = firstReading;
       const { timeSinceLastReadingInSeconds, isOldReading } =
@@ -146,7 +126,7 @@ class PlotView extends Component<Props, State> {
         return;
       }
       this.setState({
-        response: `Success for user: ${usingTestApi ? 'Test user' : username}`,
+        response: 'Success',
         trend,
         value,
         timeSinceLastReadingInSeconds,
@@ -163,7 +143,7 @@ class PlotView extends Component<Props, State> {
         Math.max(2 * 60, delayToNextRequestInSeconds) +
         EXTRA_LATENCY_IN_SECONDS;
       this.failureCount = 0;
-      if (usingTestApi) {
+      if (apiIsTestUrl) {
         delayToNextRequestInSeconds = 4 * 60 * 60;
       }
     } catch (error: any) {
@@ -238,6 +218,7 @@ export function WrappedPlotView() {
   const { sourceUrl } = settings;
   const { data: apiUrls, isLoading: apiUrlsAreLoading } = useQuery({
     queryKey: [sourceUrl, 'urls.json'],
+    enabled: Boolean(sourceUrl),
     queryFn: async () => {
       console.log(`Requesting from ${sourceUrl}`);
       const response = await fetch(`${sourceUrl}/urls.json`);
