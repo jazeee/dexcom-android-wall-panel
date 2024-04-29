@@ -5,7 +5,7 @@ export const extractDate = (reading) => {
     const timeInMilliseconds = Number(matches[1]);
     const timeInSeconds = timeInMilliseconds / 1000;
     const timeSinceLastReadingInSeconds = (Date.now() / 1000) - timeInSeconds;
-    const isOldReading = timeSinceLastReadingInSeconds > 10 * 60 * 1000;
+    const isOldReading = timeSinceLastReadingInSeconds > 10 * 60;
     return {
       timeInMilliseconds,
       timeInSeconds,

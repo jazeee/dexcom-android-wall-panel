@@ -242,8 +242,18 @@ export class JazComGlucose extends Component<Props, State> {
           </View>
         }
         <ScrollView style={styles.innerContainer}>
-          <Text style={{...styles.value, fontSize: 180 - (width > 480 ? 0 : 60)}}>
+          <Text style={{
+            ...styles.value,
+            fontSize: 180 - (width > 480 ? 0 : 60),
+            color: isOldReading ? "#666" : "#841584",
+          }}>
             {value ? value : "-"}{" "}
+            {isOldReading && (
+              <Icon
+                name="question"
+                size={width > 480 ? 120 : 80}
+              />
+            )}
             <Icon name={this.getIconName()} size={width > 480 ? 120 : 80} />
             {(trend === 1 || trend === 7 )&& (
               <Icon name={this.getIconName()} size={width > 480 ? 120 : 80} />
@@ -258,7 +268,7 @@ export class JazComGlucose extends Component<Props, State> {
           />
           <Text style={styles.response}>
             {response}
-            {isOldReading && "Outdated Reading"}
+            {isOldReading && " Outdated Reading"}
           </Text>
         </ScrollView>
       </View>
