@@ -2,6 +2,8 @@
 
 Uses React Native to show data.
 
+[Published on Google Play store](https://play.google.com/store/apps/details?id=com.jazeee)
+
 Example:
 
 ![Alt text](app-screen.png?raw=true "Screenshot")
