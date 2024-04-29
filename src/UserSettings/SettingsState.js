@@ -3,7 +3,7 @@ import React from 'react';
 import { DEFAULT_SETTINGS, loadSettings } from './storage';
 import { SettingsProvider } from './context';
 
-class SettingsWrapper extends React.Component {
+class SettingsState extends React.Component {
   state = {
     ...DEFAULT_SETTINGS,
     isInitialized: false,
@@ -38,4 +38,4 @@ class SettingsWrapper extends React.Component {
   }
 }
 
-export default SettingsWrapper;
+export default SettingsState;

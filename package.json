@@ -1,7 +1,7 @@
 {
   "description": "JazCom Data Viewer - Plot data from API every 5 minutes or so.",
   "name": "jazeee",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "private": true,
   "scripts": {
     "android": "react-native run-android",

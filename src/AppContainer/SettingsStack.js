@@ -10,8 +10,8 @@ import { createAppContainer } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
 
 import { COLORS } from '../common/colors';
-import SettingsView from '../UserSettings/SettingsView';
-import Home from '../Home/Home';
+import SettingsView from '../SettingsView';
+import Home from '../Home';
 
 const SettingsNavigator = createStackNavigator(
   {
