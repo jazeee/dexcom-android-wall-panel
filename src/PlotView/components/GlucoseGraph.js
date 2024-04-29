@@ -17,6 +17,7 @@ import Svg, {
 import AxisLine from './AxisLine';
 import SvgText from './SvgText';
 import { extractData } from "../utils";
+import { projectReadings } from './project-readings';
 
 type Props = {
   readings: PropTypes.array,
@@ -41,7 +42,7 @@ export default class GlucoseGraph extends Component<Props, State> {
       return null;
     }
     const calcTimePosition = (value) => {
-      return width - (value / 20);
+      return (width * 0.90) - (value / 20);
     }
     const calcValuePosition = (value) => {
       let heightRatio = 1 - ((value - MIN_Y_VALUE)/(MAX_Y_VALUE - MIN_Y_VALUE));
@@ -49,9 +50,10 @@ export default class GlucoseGraph extends Component<Props, State> {
       heightRatio = Math.min(1, heightRatio);
       return height * heightRatio;
     }
-    const [lastReading] = readings;
-    const lastData = extractData(lastReading);
-    const {color, isInRange} = lastData;
+    const readingData = readings.map(extractData);
+    const [lastReadingDatum] = readingData;
+    const {color, isInRange} = lastReadingDatum;
+    const projectedReadings = projectReadings(readingData);
     return (
       <Svg
         width={width}
@@ -86,14 +88,17 @@ export default class GlucoseGraph extends Component<Props, State> {
           color="red"
           value={160}
         />
-        {readings.map((reading, index) => {
+        {[...readingData, ...projectedReadings].map((datum, index) => {
           const {
             value,
             timeSinceLastReadingInSeconds,
+            timeSinceLastReadingInMinutes,
             color,
-          } = extractData(reading);
+            isProjected,
+          } = datum;
           const x = calcTimePosition(timeSinceLastReadingInSeconds);
           const y = calcValuePosition(value);
+          const textAnchor = ((width - x) / width) < 0.1 ? "end" : "middle";
           return (
             <>
               <Circle
@@ -104,18 +109,29 @@ export default class GlucoseGraph extends Component<Props, State> {
                 stroke="white"
                 strokeWidth="1.5"
                 fill={color}
+                opacity={isProjected ? 0.2 : 1.0}
               />
-              { index % 10 === 0 &&
+              { !isProjected && index % 5 === 0 &&
                 <SvgText
                   x={x}
                   y={y}
                   color={color}
-                  textAnchor={((width - x) / width) < 0.1 ? "end" : "middle"}
+                  textAnchor={textAnchor}
                   opacity={1}
                   yOffset={8}
                   fontSize={16}
                 >
                   {value}
+                </SvgText>
+              }
+              { !isProjected && index % 8 === 0 &&
+                <SvgText
+                  x={x}
+                  y={calcValuePosition(MIN_Y_VALUE)}
+                  color="#666"
+                  textAnchor={textAnchor}
+                >
+                  {-Math.round(timeSinceLastReadingInMinutes)}
                 </SvgText>
               }
             </>
