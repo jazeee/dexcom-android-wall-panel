@@ -1,12 +1,13 @@
 import { useNavigation } from '@react-navigation/native';
 import { Button, StyleSheet, Text, View } from 'react-native';
 import { COLORS } from '../common/colors';
+import { version } from '../../package.json';
 
 export function Home() {
   const { navigate } = useNavigation();
   return (
     <View style={styles.container}>
-      <Text style={styles.welcome}>Jazeee Data Monitor v2.1.1</Text>
+      <Text style={styles.welcome}>Jazeee Data Monitor v{version}</Text>
       <Text style={styles.description}>
         This application reads data from an API and displays it in an always-on
         graph.
