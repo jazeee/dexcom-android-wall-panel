@@ -23,6 +23,7 @@ type State = {};
 
 const MIN_Y_VALUE = 30;
 const MAX_Y_VALUE = 250;
+const FUTURE_TIME_IN_SECONDS = 40 * 60;
 
 export default class GlucoseGraph extends Component<Props, State> {
   render() {
@@ -31,7 +32,12 @@ export default class GlucoseGraph extends Component<Props, State> {
       return null;
     }
     const calcTimePosition = value => {
-      return width * 0.8 - value / 20;
+      if (width < 300) {
+        // Leave enough space for 20 minutes of future data.
+        return width - (value + FUTURE_TIME_IN_SECONDS / 2) / 20;
+      }
+      // Leave enough space for 40 minutes of future data.
+      return width - (value + FUTURE_TIME_IN_SECONDS) / 20;
     };
     const calcValuePosition = value => {
       let heightRatio = 1 - (value - MIN_Y_VALUE) / (MAX_Y_VALUE - MIN_Y_VALUE);
