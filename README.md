@@ -1,8 +1,8 @@
-## JazCom on Droid
+# JazCom on Droid
 
 Uses React Native to show data.
 
-### App Stores
+## App Stores
 
 [Google Play Store](https://play.google.com/store/apps/details?id=com.jazeee)
 
@@ -12,23 +12,23 @@ Example:
 
 ![Alt text](app-screen.png?raw=true "Screenshot")
 
-### To Initialize
+## To Initialize
 
 Install `react-native`, Android Development tools, and recommended tooling for non-Expo development.
 
 * Run `npm install`
 
-### To run with livereload
+## To run with livereload
 
 You first have to start react-native dev listener, then
 deploy the dev app to the device.
 
-#### First start React Native dev live reload service
+### First start React Native dev live reload service
 
 1. Start the live reload service (this will start listening on port 8081):
 2. `npm start`
 
-#### Next spawn and deploy the app to the device
+### Next spawn and deploy the app to the device
 
 1. If necessary, uninstall any version of this app. (Step 2 will fail otherwise)
 2. Deploy the app to the device and let it connect to 8081.
@@ -36,14 +36,25 @@ deploy the dev app to the device.
 
 (Shake the device to get a debug menu, which allows reload)
 
-### To trigger debug menu
+## Development Issues
+
+### `:app:installDebug FAILED`
+
+* This [link](https://stackoverflow.com/questions/37500205/react-native-appinstalldebug-failed/54955869#54955869) suggests doing some cleaning
+  * `pushd android`
+  * `./gradlew clean`
+  * `popd`
+  * Possibly also clean/reinstall packages.
+* In my case, it looks like the virtual Android device was simply hung. Force reboot or reset.
+
+## To trigger debug menu
 
 1. Either shake device or
 2. `adb shell input keyevent 82`
 
-### Generate images from largest using `res/gen-images.sh`
+## Generate images from largest using `res/gen-images.sh`
 
-### Curl notes
+## Curl notes
 
 ```
 curl   -H "Accept: application/json" -H "Content-Type: application/json"   -H "User-Agent: Dexcom Share/3.0.2.11 CFNetwork/711.2.23 Darwin/14.0.0"   -X POST https://share1.dexcom.com/ShareWebServices/Services/General/LoginPublisherAccountByName   -d '{"applicationId":"d8665ade-9673-4e27-9ff6-92db4ce13d13","accountName": "jazeee", "password": ""}'
@@ -70,7 +81,7 @@ Output like:
 DT is device, ST is server. Trends used to be numbers, like 4 is flat, 3 is up, 2 is very up, 5 is down, 6 is very down. Now are strings.
 ```
 
-### Install notes
+## Install notes
 
 Will need a keystore to sign the app. (Must use new file if you forgot the pwd LoL)
 
