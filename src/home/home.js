@@ -17,10 +17,10 @@ export class Home extends Component<Props> {
   render() {
     return (
       <View style={styles.container}>
-        <Text style={styles.welcome}>JazCom Monitor</Text>
+        <Text style={styles.welcome}>JazCom Monitor v1.0.7</Text>
         <Button
-          onPress={() => this.props.navigation.navigate('Glucose')}
-          title="Glucose"
+          onPress={() => this.props.navigation.navigate('Data')}
+          title="Data"
         />
       </View>
     );
