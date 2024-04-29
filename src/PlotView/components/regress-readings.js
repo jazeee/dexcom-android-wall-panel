@@ -38,7 +38,7 @@ export const projectReadings = (readingData, highAxis) => {
     .map(([_, value]) => value ** 2)
     .reduce((accumulator, x) => accumulator + x, 0);
   const rmsResiduals = meanSquared ** 0.5;
-  if (rmsResiduals > highAxis / 10) {
+  if (rmsResiduals > highAxis / 4) {
     // Scan for anomalies - do not provide projected data if there are odd steps.
     console.debug(
       `Not projecting data due to high rmsResiduals: ${rmsResiduals} with coefficients: ${coefficients}`,
