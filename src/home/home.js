@@ -22,10 +22,6 @@ export class Home extends Component<Props> {
           onPress={() => this.props.navigation.navigate('Glucose')}
           title="Glucose"
         />
-        <Button
-          onPress={() => this.props.navigation.navigate('LightSwitches')}
-          title="LightSwitches"
-        />
       </View>
     );
   }
