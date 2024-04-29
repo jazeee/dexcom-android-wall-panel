@@ -13,12 +13,15 @@ import {
   ScrollView,
   View,
 } from 'react-native';
-import { JazComAccountDialog } from "./setup-dialog.js";
+import AccountDialog from "./AccountDialog.js";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { extractDate } from "./utils";
-import { GlucoseGraph } from "./glucose-graph.js";
 
-const plotMargin = 5;
+import { COLORS } from '../common/colors';
+import DateTime from '../common/components/DateTime';
+import { extractDate } from "./utils";
+import GlucoseGraph from "./GlucoseGraph.js";
+
+const plotMargin = 4;
 const plotMarginX2 = plotMargin * 2;
 const EXTRA_LATENCY_IN_SECONDS = 10 + 10 * Math.random();
 type Props = {
@@ -39,18 +42,24 @@ type State = {
   height: 0,
 }
 
-export class JazComData extends Component<Props, State> {
+export default class PlotView extends Component<Props, State> {
   static navigationOptions = ({ navigation }) => {
     return {
-      title: 'Data',
+      headerTitle: () => (
+        <Fragment>
+          <DateTime style={styles.dateTime} />
+        </Fragment>
+      ),
       headerRight: (
         <Fragment>
           <Button
+            color={COLORS.primary}
             onPress={() => navigation.getParam("setIsSetupDialogVisible")(true)}
             title={`Set up Account`}
             accessibilityLabel="Set up Account"
           />
           <Button
+            color={COLORS.primary}
             onPress={() => navigation.navigate('Home')}
             title="Home"
           />
@@ -283,7 +292,7 @@ export class JazComData extends Component<Props, State> {
           <Text style={{
             ...styles.value,
             fontSize: 180 - (width > 480 ? 0 : 60),
-            color: isOldReading ? "#666" : "#841584",
+            color: isOldReading ? "#666" : COLORS.primary,
           }}>
             {value ? value : "-"}{" "}
             {isOldReading && (
@@ -297,18 +306,18 @@ export class JazComData extends Component<Props, State> {
               <Icon name={this.getIconName()} size={width > 480 ? 120 : 80} />
             )}
           </Text>
-          <JazComAccountDialog
+          <AccountDialog
             setCreds={this.setCreds}
             username={username}
             password={password}
             isSetupDialogVisible={isSetupDialogVisible}
             setIsSetupDialogVisible={this.setIsSetupDialogVisible}
           />
-          <Text style={styles.response}>
-            {response}
-            {isOldReading && " Outdated Reading"}
-          </Text>
         </ScrollView>
+        <Text style={styles.response}>
+          {response}
+          {isOldReading && " Outdated Reading"}
+        </Text>
       </View>
     );
   }
@@ -337,14 +346,16 @@ const styles = StyleSheet.create({
   },
   value: {
     fontSize: 180,
-    color: "#841584",
+    color: COLORS.primary,
   },
   trend: {
     fontSize: 64,
-    color: "#841584",
+    color: COLORS.primary,
   },
   response: {
     fontSize: 16,
-    color: "#841584",
+    color: COLORS.primary,
+    position: "absolute",
+    bottom: plotMarginX2,
   },
 });

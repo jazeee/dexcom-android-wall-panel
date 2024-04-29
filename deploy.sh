@@ -1,5 +1,3 @@
 #!/bin/bash
 
-./build.sh
-
-adb install -f app/build/outputs/apk/release/app-release.apk
+adb install -f android/app/build/outputs/apk/release/app-release-signed.apk
