@@ -9,7 +9,7 @@
 import React from 'react';
 import KeepAwake from 'react-native-keep-awake';
 import SettingsState from './UserSettings/SettingsState';
-import PlotStack from './AppContainer/PlotStack';
+import AppContainer from './AppContainer';
 import 'react-native-gesture-handler';
 
 export default class App extends React.Component {
@@ -20,7 +20,7 @@ export default class App extends React.Component {
   render() {
     return (
       <SettingsState>
-        <PlotStack />
+        <AppContainer />
       </SettingsState>
     );
   }

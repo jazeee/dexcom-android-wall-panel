@@ -13,6 +13,10 @@ const SETTING_PROPS = [
     name: 'sourceUrl',
     defaultValue: 'https://jazcom.jazeee.com/sample3',
   },
+  {
+    name: 'initialVisitState',
+    defaultValue: 'NEVER_OPENED',
+  },
 ];
 
 export const extractSettingsFromArray = settingProps => {
@@ -31,6 +35,11 @@ export const saveSettings = async settings => {
     return await AsyncStorage.setItem(`@jazcom:${name}`, settings[name]);
   });
   return Promise.all(promises);
+};
+
+export const saveSettingsState = async (state, setState) => {
+  await saveSettings(state);
+  await setState(state);
 };
 
 export const loadSettings = async () => {

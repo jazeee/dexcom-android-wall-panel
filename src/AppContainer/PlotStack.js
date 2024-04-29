@@ -21,7 +21,7 @@ const PlotStackNavigator = createStackNavigator(
     PlotView: { screen: PlotView },
   },
   {
-    initialRouteName: 'PlotView',
+    initialRouteName: 'Home',
     defaultNavigationOptions: {
       headerStyle: {
         backgroundColor: '#000',

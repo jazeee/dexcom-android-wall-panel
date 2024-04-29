@@ -5,32 +5,42 @@
 
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { VISITED_SETTINGS_VIEW } from '../SettingsView/constants';
 
-const Home = () => {
-  return (
-    <View style={styles.container}>
-      <Text style={styles.welcome}>Jazeee Data Monitor v1.5.1</Text>
-      <Text style={styles.description}>
-        This application reads data from an API and displays it in an always-on
-        graph.
-      </Text>
-      <Text style={styles.warnings}>
-        This app is for entertainment purposes only. Do not use for any other
-        purpose. By using this app, you accept full liability for any and all
-        damage. Use at your own risk.
-      </Text>
-      <Text style={styles.warnings}>
-        Since the app keeps the screen on at full brightness, your device may
-        experience burn-in or screen damage. By using this app, you accept full
-        liability for any and all damage. Use at your own risk.
-      </Text>
-      <Text style={styles.warnings}>
-        This app will use a small amount of network bandwidth, which may cost
-        you. Use at your own risk.
-      </Text>
-    </View>
-  );
-};
+class Home extends React.Component {
+  componentDidMount() {
+    const { initialVisitState } = this.props.state;
+    if (initialVisitState === VISITED_SETTINGS_VIEW) {
+      this.props.navigation.navigate('PlotView');
+    }
+  }
+
+  render() {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.welcome}>Jazeee Data Monitor v1.5.1</Text>
+        <Text style={styles.description}>
+          This application reads data from an API and displays it in an
+          always-on graph.
+        </Text>
+        <Text style={styles.warnings}>
+          This app is for entertainment purposes only. Do not use for any other
+          purpose. By using this app, you accept full liability for any and all
+          damage. Use at your own risk.
+        </Text>
+        <Text style={styles.warnings}>
+          Since the app keeps the screen on at full brightness, your device may
+          experience burn-in or screen damage. By using this app, you accept
+          full liability for any and all damage. Use at your own risk.
+        </Text>
+        <Text style={styles.warnings}>
+          This app will use a small amount of network bandwidth, which may cost
+          you. Use at your own risk.
+        </Text>
+      </View>
+    );
+  }
+}
 
 export default Home;
 
