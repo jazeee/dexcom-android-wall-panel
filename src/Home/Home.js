@@ -18,7 +18,7 @@ class Home extends React.Component {
   render() {
     return (
       <View style={styles.container}>
-        <Text style={styles.welcome}>Jazeee Data Monitor v1.5.1</Text>
+        <Text style={styles.welcome}>Jazeee Data Monitor v1.5.2</Text>
         <Text style={styles.description}>
           This application reads data from an API and displays it in an
           always-on graph.

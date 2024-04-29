@@ -2,12 +2,12 @@ import regression from 'regression';
 
 const READING_COUNT = 10;
 const PROJECTED_COUNT = 10;
-export const projectReadings = readingData => {
+export const projectReadings = (readingData, highAxis) => {
   const lastReadings = readingData.slice(0, READING_COUNT);
   const weightedLastReadings = [];
   // Weigh newest readings more
   for (let i = 0; i < lastReadings.length; i += 1) {
-    for (let j = 0; j < READING_COUNT - i; j += 1) {
+    for (let j = 0; j < (READING_COUNT - i) / 3; j += 1) {
       weightedLastReadings.push(lastReadings[i]);
     }
   }
@@ -26,7 +26,7 @@ export const projectReadings = readingData => {
     return [];
   }
 
-  const { equation: coefficients, r2: rSquared } = regression.polynomial(
+  const { equation: coefficients, residuals } = regression.polynomial(
     arrayPairs,
     {
       order: 2,
@@ -34,10 +34,14 @@ export const projectReadings = readingData => {
     },
   );
   const [acceleration, slope] = coefficients;
-  if ((rSquared < 0.8 && Math.abs(acceleration) > 1e-5) || rSquared < 0.5) {
+  const meanSquared = residuals
+    .map(([_, value]) => value ** 2)
+    .reduce((accumulator, x) => accumulator + x, 0);
+  const rmsResiduals = meanSquared ** 0.5;
+  if (rmsResiduals > highAxis / 10) {
     // Scan for anomalies - do not provide projected data if there are odd steps.
     console.debug(
-      `Not projecting data due to low rSquared: ${rSquared} with coefficients: ${coefficients}`,
+      `Not projecting data due to high rmsResiduals: ${rmsResiduals} with coefficients: ${coefficients}`,
     );
     return [];
   }
