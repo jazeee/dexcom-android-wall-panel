@@ -44,6 +44,8 @@ type State = {
 
 const DEFAULT_SOURCE = 'dx';
 const LOW_ALARM_VALUE = 55;
+// See https://github.com/facebook/react-native/issues/12981
+console.ignoredYellowBox = ['Setting a timer'];
 
 export default class PlotView extends Component<Props, State> {
   static navigationOptions = ({ navigation }) => {
