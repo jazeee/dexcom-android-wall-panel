@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { FlatList, Text, StyleSheet } from 'react-native';
+import { COLORS } from '../../common/colors';
 
 interface IApiSourceUrl {
   name: string;
@@ -29,6 +30,7 @@ export function SourceUrlPicker(props: Props) {
       const responseValues: {
         sources: IApiSourceUrl[];
       } = await response.json();
+      console.log(responseValues);
       const { sources } = responseValues || {};
       return sources ?? [];
     },
@@ -40,8 +42,10 @@ export function SourceUrlPicker(props: Props) {
   const loadingMessage = urlsAreLoading ? 'Loading...' : '';
   return (
     <>
-      {loadingMessage ? <Text>{loadingMessage}</Text> : null}
-      {error ? <Text>{error.toString()}</Text> : null}
+      {loadingMessage ? (
+        <Text style={styles.loading}>{loadingMessage}</Text>
+      ) : null}
+      {error ? <Text style={styles.error}>{error.toString()}</Text> : null}
       <FlatList
         style={styles.sourceUrls}
         data={apiSourceUrls?.map((source) => {
@@ -76,9 +80,16 @@ const styles = StyleSheet.create({
   sourceUrls: {
     flex: 1,
   },
+  loading: {
+    color: COLORS.primary,
+  },
+  error: {
+    color: COLORS.primary,
+  },
   apiListItem: {
     fontSize: 16,
     padding: 8,
+    color: COLORS.primary,
   },
   selectedApi: {
     fontWeight: 'bold',
