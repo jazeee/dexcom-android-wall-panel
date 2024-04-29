@@ -19,7 +19,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { COLORS } from '../common/colors';
 import DateTime from '../common/components/DateTime';
 import { extractDate } from "./utils";
-import GlucoseGraph from "./GlucoseGraph.js";
+import GlucoseGraph from "./components/GlucoseGraph.js";
 
 const plotMargin = 4;
 const plotMarginX2 = plotMargin * 2;
@@ -284,7 +284,7 @@ export default class PlotView extends Component<Props, State> {
               readings={readings}
             />
             <Text style={styles.overlayContent}>
-              Overlay
+              Loading...
             </Text>
           </View>
         }
