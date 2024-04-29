@@ -33,7 +33,7 @@ class SourceUrlPicker extends Component<Props, State> {
       const urlContainer = await response.json();
       const { sources: apiSourceUrls } = urlContainer || {};
       console.debug('****Loaded****', apiSourceUrls);
-      this.setState({ apiSourceUrls, loadingMessage: 'Done' });
+      this.setState({ apiSourceUrls, loadingMessage: '' });
       // this.setState({ apiSourceUrls, loadingMessage: JSON.stringify(apiSourceUrls) })
     } catch (error) {
       console.debug(error);
