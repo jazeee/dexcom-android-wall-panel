@@ -16,3 +16,20 @@ export const extractDate = (reading) => {
   }
   return null;
 }
+
+export const extractData = (reading) => {
+  const dateDetails = extractDate(reading) || {};
+  const { Trend: trend, Value: value } = reading;
+  const isHigh = value >= 160;
+  const isLow = value < 70;
+  const color = isHigh ? "orange" : ( isLow ? "red": "green");
+  return {
+    ...dateDetails,
+    value,
+    trend,
+    color,
+    isHigh,
+    isLow,
+    isInRange: !isHigh && !isLow,
+  };
+}

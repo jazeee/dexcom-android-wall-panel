@@ -7,11 +7,13 @@
  * @lint-ignore-every XPLATJSCOPYRIGHT1
  */
 
-import React, {Component} from 'react';
-import {Platform, StyleSheet, Text, View, Button} from 'react-native';
+import React from 'react';
+import {Platform, StyleSheet} from 'react-native';
 import KeepAwake from 'react-native-keep-awake';
-import { LightSwitch } from './lights/light-switch.js';
-import { JazComGlucose } from './jaz-com/glucose.js';
+import { Home } from './src/home/home.js';
+import { LightSwitches } from './src/lights/light-switches.js';
+import { JazComGlucose } from './src/jaz-com/glucose.js';
+import { createStackNavigator, createAppContainer } from "react-navigation";
 
 const instructions = Platform.select({
   ios: 'Press Cmd+R to reload,\n' + 'Cmd+D or shake for dev menu',
@@ -20,53 +22,28 @@ const instructions = Platform.select({
     'Shake or press menu button for dev menu',
 });
 
-type Props = {};
-export default class App extends Component<Props> {
+const AppNavigator = createStackNavigator({
+  Home,
+  Glucose: JazComGlucose,
+  LightSwitches,
+}, {
+  initialRouteName: "Glucose",
+  defaultNavigationOptions: {
+    headerStyle: {
+      backgroundColor: '#000',
+    },
+    headerTintColor: '#841584',
+  },
+});
+
+const AppContainer = createAppContainer(AppNavigator);
+
+export default class App extends React.Component {
   constructor(props) {
     super(props);
     KeepAwake.activate();
   }
   render() {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.welcome}>JazCom Monitor</Text>
-        <View style={styles.dexGroup}>
-          <JazComGlucose />
-        </View>
-        <View style={styles.bulbGroup}>
-          <LightSwitch switchId={200} />
-          <LightSwitch switchId={208} />
-          <LightSwitch switchId={202} />
-        </View>
-      </View>
-    );
+    return <AppContainer />;
   }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#222',
-  },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-    color: "#9cf",
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#eee',
-    marginBottom: 5,
-  },
-  dexGroup: {
-    flex: 3,
-    flexDirection: "row",
-  },
-  bulbGroup: {
-    flex: 1,
-    flexDirection: "row",
-  },
-});

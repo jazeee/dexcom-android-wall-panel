@@ -4,12 +4,22 @@
  * @lint-ignore-every XPLATJSCOPYRIGHT1
  */
 
-import React, {Component} from 'react';
-import {AsyncStorage, StyleSheet, Text, View, Button} from 'react-native';
+import React, {Component, Fragment} from 'react';
+import {
+  AsyncStorage,
+  StyleSheet,
+  Text,
+  ScrollView,
+  View,
+  Button,
+} from 'react-native';
 import { JazComAccountDialog } from "./setup-dialog.js";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { extractDate } from "./utils";
+import { GlucoseGraph } from "./glucose-graph.js";
 
+const plotMargin = 5;
+const plotMarginX2 = plotMargin * 2;
 type Props = {
 };
 
@@ -20,10 +30,24 @@ type State = {
   trend: number,
   timeSinceLastReadingInSeconds: number,
   isOldReading: boolean,
+  readings: PropTypes.array,
   response: "",
+  width: 0,
+  height: 0,
 }
 
 export class JazComGlucose extends Component<Props, State> {
+  static navigationOptions = ({ navigation }) => {
+    return {
+      title: 'Glucose',
+      headerRight: (
+        <Button
+          onPress={() => navigation.navigate('Home')}
+          title="Home"
+        />
+      ),
+    };
+  };
   constructor(props) {
     super(props);
     this.state = {
@@ -41,7 +65,15 @@ export class JazComGlucose extends Component<Props, State> {
   }
 
   componentDidMount = () => {
+    this.isThisMounted = true;
     this.updateCredsFromStore();
+  }
+  componentWillUnmount = () => {
+    this.isThisMounted = false;
+    if (this.lastTimeoutId !== 0) {
+      clearTimeout(this.lastTimeoutId);
+    }
+    this.lastTimeoutId = 0;
   }
   updateCredsFromStore = async () => {
     try {
@@ -64,6 +96,9 @@ export class JazComGlucose extends Component<Props, State> {
   };
 
   getGlucose = async () => {
+    if (!this.isThisMounted) {
+      return;
+    }
     const { username, password } = this.state;
     if (!username || !password) {
       this.setState({ response: "Need username and password!"});
@@ -117,12 +152,16 @@ export class JazComGlucose extends Component<Props, State> {
       const [firstReading] = readings;
       const { Trend: trend, Value: value } = firstReading;
       const { timeSinceLastReadingInSeconds, isOldReading } = extractDate(firstReading) || {};
+      if (!this.isThisMounted) {
+        return;
+      }
       this.setState({
         response: "Success!",
         trend,
         value,
         timeSinceLastReadingInSeconds,
         isOldReading,
+        readings,
       });
     } catch (error) {
       console.log(error);
@@ -154,22 +193,51 @@ export class JazComGlucose extends Component<Props, State> {
   }
 
   render() {
-    const { value, trend, date, response, username, password, isOldReading } = this.state;
+    const {
+      value,
+      trend,
+      date,
+      readings,
+      response,
+      username,
+      password,
+      isOldReading,
+      width,
+      height,
+    } = this.state;
     return (
-      <View style={styles.container}>
-        <Text style={styles.value}>{value ? value : "-"}</Text>
-        <Text style={styles.trend}>
-          <Icon name={this.getIconName()} size={60} />
-        </Text>
-        <JazComAccountDialog
-          setCreds={this.setCreds}
-          username={username}
-          password={password}
-        />
-        <Text style={styles.response}>
-          {response}
-          {isOldReading && "Outdated Reading"}
-        </Text>
+      <View style={styles.container} onLayout={
+        (event) => {
+          const {width, height} = event.nativeEvent.layout;
+          this.setState({ width, height });
+        }}>
+        { width > plotMarginX2 && height > plotMarginX2 &&
+          <View style={{...styles.overlay, width: width - plotMarginX2, height: height - plotMarginX2}}>
+            <GlucoseGraph
+              width={width - plotMarginX2}
+              height={height - plotMarginX2}
+              readings={readings}
+            />
+            <Text style={styles.overlayContent}>
+              Overlay
+            </Text>
+          </View>
+        }
+        <ScrollView style={styles.innerContainer}>
+          <Text style={styles.value}>
+            {value ? value : "-"}{" "}
+            <Icon name={this.getIconName()} size={120} />
+          </Text>
+          <JazComAccountDialog
+            setCreds={this.setCreds}
+            username={username}
+            password={password}
+          />
+          <Text style={styles.response}>
+            {response}
+            {isOldReading && "Outdated Reading"}
+          </Text>
+        </ScrollView>
       </View>
     );
   }
@@ -177,10 +245,24 @@ export class JazComGlucose extends Component<Props, State> {
 
 const styles = StyleSheet.create({
   container: {
+    position: "relative",
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#002',
+  },
+  innerContainer: {
+  },
+  overlay: {
+    position: "absolute",
+    top: plotMargin,
+    left: plotMargin,
+    opacity: 1,
+  },
+  overlayContent: {
+    fontSize: 150,
+    color: "white",
+    opacity: 0.2,
   },
   value: {
     fontSize: 180,
