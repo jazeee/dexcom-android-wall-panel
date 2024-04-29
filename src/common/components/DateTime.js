@@ -5,6 +5,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { StyleSheet, Text } from 'react-native';
+import { format } from 'date-fns';
 
 import { COLORS } from '../colors';
 
@@ -17,7 +18,7 @@ export default function DateTime(props: Props) {
   const timerRef = useRef(-1);
 
   const updateTime = useCallback(() => {
-    setDateTime(new Date().toLocaleTimeString());
+    setDateTime(format(new Date(), 'hh:mm:ss a'));
     timerRef.current = setTimeout(() => {
       updateTime();
     }, 1000);

@@ -29,7 +29,7 @@ type Props = {};
 type State = {
   username: string,
   password: string,
-  urls: object,
+  sourceUrls: object,
   isSetupDialogVisible: boolean,
   value: number,
   trend: number,
@@ -40,6 +40,8 @@ type State = {
   width: 0,
   height: 0,
 };
+
+const DEFAULT_SOURCE = 'dx';
 
 export default class PlotView extends Component<Props, State> {
   static navigationOptions = ({ navigation }) => {
@@ -76,7 +78,7 @@ export default class PlotView extends Component<Props, State> {
       response: '',
       username: '',
       password: '',
-      urls: undefined,
+      sourceUrls: {},
       isSetupDialogVisible: false,
     };
     this.authKey = '';
@@ -119,13 +121,14 @@ export default class PlotView extends Component<Props, State> {
     } catch (error) {
       this.setState({ response: error.toString() });
     }
-    this.setState({ username, password }, this.getData);
+    this.lastUpdatedAuthKey = 0;
+    this.setState({ username, password, response: 'Loading...' }, this.getData);
   };
 
   setIsSetupDialogVisible = isSetupDialogVisible =>
     this.setState({ isSetupDialogVisible });
 
-  getUrls = async (source = 'dx') => {
+  getUrls = async (source = DEFAULT_SOURCE) => {
     return new Promise(async (resolve, reject) => {
       try {
         const response = await fetch(
@@ -139,9 +142,17 @@ export default class PlotView extends Component<Props, State> {
         if (!urls) {
           throw new Error('No URL JSON content');
         }
-        this.setState({ urls }, () => {
-          resolve(urls);
-        });
+        this.setState(
+          ({ sourceUrls }) => ({
+            sourceUrls: {
+              ...sourceUrls,
+              [source]: urls,
+            },
+          }),
+          () => {
+            resolve(urls);
+          },
+        );
       } catch (error) {
         this.setState({ response: error.toString() });
         reject(error);
@@ -161,10 +172,11 @@ export default class PlotView extends Component<Props, State> {
     let delayToNextRequestInSeconds = 5 * 60;
     const currentTime = new Date().getTime();
     try {
-      let { urls } = this.state;
-      const isSampleUser = username === 'sample';
+      const { sourceUrls } = this.state;
+      const isSampleUser = username.startsWith('sample');
+      const source = isSampleUser ? username : DEFAULT_SOURCE;
+      let urls = sourceUrls[source];
       if (!urls) {
-        const source = isSampleUser ? 'sample' : undefined;
         urls = await this.getUrls(source);
       }
       const { auth: authReq, data: dataReq } = urls;
@@ -225,7 +237,7 @@ export default class PlotView extends Component<Props, State> {
         return;
       }
       this.setState({
-        response: 'Success!',
+        response: `Success for user: ${username}`,
         trend,
         value,
         timeSinceLastReadingInSeconds,
@@ -331,7 +343,7 @@ export default class PlotView extends Component<Props, State> {
             )}
           </Text>
           <AccountDialog
-            setCreds={this.setCreds}
+            setCreds={this.setCreds.bind(this)}
             username={username}
             password={password}
             isSetupDialogVisible={isSetupDialogVisible}
@@ -379,6 +391,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: COLORS.primary,
     position: 'absolute',
-    bottom: plotMarginX2,
+    bottom: plotMargin * 6,
   },
 });
