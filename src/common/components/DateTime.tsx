@@ -1,19 +1,14 @@
-/**
- * @format
- * @flow
- */
-
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { StyleSheet, Text } from 'react-native';
 import { format } from 'date-fns';
 
 import { COLORS } from '../colors';
 
-type Props = {
-  style?: object,
-};
+interface Props {
+  style?: Object;
+}
 
-export default function DateTime(props: Props) {
+export function DateTime(props: Props) {
   const [dateTime, setDateTime] = useState('');
   const timerRef = useRef(-1);
 

@@ -1,16 +1,15 @@
-import React from 'react';
 import { Line } from 'react-native-svg';
-import SvgText from './SvgText';
+import { SvgText } from './SvgText';
 
-type Props = {
-  y: number,
-  units: string,
-  width: number,
-  color: string,
-  value: string,
-};
+interface Props {
+  y: number;
+  units: string;
+  width: number;
+  color: string;
+  value: number;
+}
 
-const AxisLine = (props: Props) => {
+export function AxisLine(props: Props) {
   const { y, width, value, units, color } = props;
   return (
     <>
@@ -28,6 +27,4 @@ const AxisLine = (props: Props) => {
       </SvgText>
     </>
   );
-};
-
-export default AxisLine;
+}

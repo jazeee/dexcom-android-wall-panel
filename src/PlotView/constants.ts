@@ -1,4 +1,6 @@
-export const DEFAULT_META = {
+import { IPlotSettings } from './types';
+
+export const DEFAULT_META: IPlotSettings = {
   units: 'mg/dL',
   lowWarning: 55,
   highWarning: 180,

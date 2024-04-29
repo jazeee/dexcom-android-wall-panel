@@ -1,10 +1,19 @@
-const calculateSlopeInValuePerSec = (
-  datum1,
-  datum2,
+import { ISummarizedPlotDatum } from '../types';
+
+type TSlopeDatum = Pick<
+  ISummarizedPlotDatum,
+  'value' | 'timeSinceLastReadingInSeconds'
+>;
+
+function calculateSlopeInValuePerSec(
+  datum1: TSlopeDatum,
+  datum2: TSlopeDatum,
   maxDeltaInSeconds = 10 * 60,
-) => {
-  const { value: value1, timeSinceLastReadingInSeconds: timeInSec1 } = datum1;
-  const { value: value2, timeSinceLastReadingInSeconds: timeInSec2 } = datum2;
+) {
+  const { value: value1, timeSinceLastReadingInSeconds: timeInSec1 = 0 } =
+    datum1;
+  const { value: value2, timeSinceLastReadingInSeconds: timeInSec2 = 0 } =
+    datum2;
   const deltaInSeconds = timeInSec2 - timeInSec1;
   if (Math.abs(deltaInSeconds) > maxDeltaInSeconds) {
     return undefined;
@@ -13,9 +22,12 @@ const calculateSlopeInValuePerSec = (
     timeSinceLastReadingInSeconds: timeInSec1 + deltaInSeconds / 2,
     value: (value2 - value1) / Math.min(1, deltaInSeconds),
   };
-};
+}
 
-const extractSlopeStatistics = (readingData, latestResultWeight = 0.5) => {
+function extractSlopeStatistics(
+  readingData: TSlopeDatum[],
+  latestResultWeight = 0.5,
+) {
   const slopes = [];
   let slope;
   for (let i = Math.min(10, readingData.length - 2); i >= 0; --i) {
@@ -38,10 +50,10 @@ const extractSlopeStatistics = (readingData, latestResultWeight = 0.5) => {
     slope,
     slopes,
   };
-};
+}
 
 const PROJECTED_COUNT = 10;
-export const projectReadings = readingData => {
+export function projectReadings(readingData: ISummarizedPlotDatum[]) {
   if (readingData.length <= 3) {
     return [];
   }
@@ -57,7 +69,7 @@ export const projectReadings = readingData => {
   const [latestDatum] = readingData;
   const {
     value: latestValue,
-    timeSinceLastReadingInSeconds: latestTimeInSeconds,
+    timeSinceLastReadingInSeconds: latestTimeInSeconds = 0,
   } = latestDatum;
   for (let index = 0; index < PROJECTED_COUNT; index += 1) {
     const deltaInSec = -(index + 1) * 5 * 60;
@@ -77,4 +89,4 @@ export const projectReadings = readingData => {
     });
   }
   return projectedReadings;
-};
+}

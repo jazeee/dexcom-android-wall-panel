@@ -1,8 +1,17 @@
 import regression from 'regression';
+import { ISummarizedPlotDatum } from '../types';
+
+interface IProjectedPlotDatum extends ISummarizedPlotDatum {
+  isProjected: boolean;
+  projectedIndex: number;
+}
 
 const READING_COUNT = 10;
 const PROJECTED_COUNT = 10;
-export const projectReadings = (readingData, highAxis) => {
+export function projectReadings(
+  readingData: ISummarizedPlotDatum[],
+  highAxis: number,
+): IProjectedPlotDatum[] {
   const lastReadings = readingData.slice(0, READING_COUNT);
   const weightedLastReadings = [];
   // Weigh newest readings more
@@ -48,7 +57,7 @@ export const projectReadings = (readingData, highAxis) => {
   const [latestDatum] = readingData;
   const {
     value: latestValue,
-    timeSinceLastReadingInSeconds: latestTimeInSeconds,
+    timeSinceLastReadingInSeconds: latestTimeInSeconds = 0,
   } = latestDatum;
   const projectedReadings = [];
 
@@ -70,4 +79,4 @@ export const projectReadings = (readingData, highAxis) => {
     });
   }
   return projectedReadings;
-};
+}

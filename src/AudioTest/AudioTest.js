@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button, View } from 'react-native';
-import { safePlayAudio } from './playAudio';
+import { safePlayAudio } from '../PlotView/playAudio';
 
 export function AudioTest() {
   return (
@@ -12,5 +12,3 @@ export function AudioTest() {
     </View>
   );
 }
-
-export default AudioTest;
