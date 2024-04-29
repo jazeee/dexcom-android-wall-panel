@@ -6,11 +6,11 @@ Example:
 
 ![Alt text](app-screen.png?raw=true "Screenshot")
 
-###To Initialize:
+### To Initialize:
 
 `react-native run-android`
 
-###To run with livereload:
+### To run with livereload:
 
 `react-native start --reset-cache`
 
@@ -48,7 +48,8 @@ Output like:
 DT is device, ST is server. Trend of 4 is flat, 3 is up, 2 is very up, 5 is down, 6 is very down.
 ```
 ### Install notes
-Must use new file if you forgot the pwd:
+Will need a keystore to sign the app. (Must use new file if you forgot the pwd LoL)
+
 `keytool -genkey -v -keystore ~/.gradle/jazcomkeystore -alias jazcomkeystore -keyalg RSA -keysize 2048 -validity 90000`
 
 See `~/.gradle/gradle.properties` for default
@@ -64,7 +65,7 @@ adb install -f app/build/outputs/apk/release/app-release.apk
 ```
 
 ```
-2099  cp ../cgm/apktool/new/release-key-dexcom.jks android/app/
+ 2099  cp ../cgm/apktool/new/release-key-dexcom.jks android/app/
  2100  vi android/gradle.properties
  2101  mv android/app/release-key-dexcom.jks ~/.gradle/
  2102  vi ~/.gradle/gradle.properties
