@@ -8,7 +8,8 @@
  */
 
 import React, {Component} from 'react';
-import {Platform, StyleSheet, Text, View} from 'react-native';
+import {Platform, StyleSheet, Text, View, Button} from 'react-native';
+import KeepAwake from 'react-native-keep-awake';
 
 const instructions = Platform.select({
   ios: 'Press Cmd+R to reload,\n' + 'Cmd+D or shake for dev menu',
@@ -19,12 +20,35 @@ const instructions = Platform.select({
 
 type Props = {};
 export default class App extends Component<Props> {
+  constructor(props) {
+    super(props);
+    this.state = {
+      brightness: 1,
+    };
+    this.updateBrightness = this.updateBrightness.bind(this);
+    KeepAwake.activate();
+  }
+  updateBrightness() {
+    this.setState(({ brightness }) => {
+      if (brightness > 0.8) {
+        brightness = 0.4;
+      } else {
+        brightness = 1.0;
+      }
+      return { brightness };
+    })
+  }
   render() {
     return (
       <View style={styles.container}>
-        <Text style={styles.welcome}>Welcome to React Native!</Text>
-        <Text style={styles.instructions}>To get started, edit App.js</Text>
+        <Text style={styles.welcome}>JazCom Monitor!</Text>
         <Text style={styles.instructions}>{instructions}</Text>
+        <Button
+          onPress={this.updateBrightness}
+          title="Update Brightness"
+          color="#841584"
+          accessibilityLabel="Learn more about this purple button"
+        />
       </View>
     );
   }
@@ -35,16 +59,17 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F5FCFF',
+    backgroundColor: '#222',
   },
   welcome: {
-    fontSize: 20,
+    fontSize: 40,
     textAlign: 'center',
     margin: 10,
+    color: "#9cf",
   },
   instructions: {
     textAlign: 'center',
-    color: '#333333',
+    color: '#eee',
     marginBottom: 5,
   },
 });
