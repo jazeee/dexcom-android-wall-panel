@@ -1,4 +1,12 @@
 {
   "name": "jazeee",
-  "displayName": "JazCom Data Viewer"
+  "displayName": "jazeee",
+  "plugins": [
+    [
+      "expo-audio",
+      {
+        "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone."
+      }
+    ]
+  ]
 }
