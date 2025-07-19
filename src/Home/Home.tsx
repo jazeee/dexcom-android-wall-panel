@@ -1,12 +1,15 @@
 import { useNavigation } from '@react-navigation/native';
-import { Button, StyleSheet, Text, View } from 'react-native';
+import { Button, StyleSheet, Text } from 'react-native';
 import { COLORS } from '../common/colors';
 import { version } from '../../package.json';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { InsetView } from '../common/components/InsetView';
 
 export function Home() {
   const { navigate } = useNavigation();
+  const insets = useSafeAreaInsets();
   return (
-    <View style={styles.container}>
+    <InsetView style={styles.container}>
       <Text style={styles.welcome}>Jazeee Data Monitor v{version}</Text>
       <Text style={styles.description}>
         This application reads data from an API and displays it in an always-on
@@ -31,7 +34,7 @@ export function Home() {
         onPress={() => navigate('AudioTest' as never)}
         title="Test Audio"
       />
-    </View>
+    </InsetView>
   );
 }
 

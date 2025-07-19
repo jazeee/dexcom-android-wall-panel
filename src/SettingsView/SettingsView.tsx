@@ -10,6 +10,7 @@ import { storeSettings } from '../UserSettings/storage';
 import { useSettingsContext } from '../UserSettings/SettingsProvider';
 import { useNavigation } from '@react-navigation/native';
 import { SettingName, SettingsStatus } from '../UserSettings/types';
+import { InsetView } from '../common/components/InsetView';
 
 export function SettingsView() {
   const { settings, reloadSettings } = useSettingsContext();
@@ -29,7 +30,7 @@ export function SettingsView() {
 
   const usingTestApi = isTestApi(sourceUrl);
   return (
-    <View style={styles.form}>
+    <InsetView style={styles.form}>
       <Text style={styles.header}>Source</Text>
       <View style={{ ...styles.formField, ...styles.urlFormField }}>
         <Text style={styles.label}>Data Source:</Text>
@@ -78,7 +79,7 @@ export function SettingsView() {
         </>
       )}
       <Button onPress={onAccept} title="Accept" />
-    </View>
+    </InsetView>
   );
 }
 

@@ -1,27 +1,32 @@
 import React from 'react';
+import { StatusBar } from 'react-native';
 
 import { NavigationContainer } from '@react-navigation/native';
-import KeepAwake from 'react-native-keep-awake';
-
-import { SettingsProvider } from './UserSettings/SettingsProvider';
-import ErrorBoundary from 'react-native-error-boundary';
-import { AppRoutes } from './AppNavigation/Routes';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { StatusBar } from 'react-native';
-const queryClient = new QueryClient();
+import ErrorBoundary from 'react-native-error-boundary';
+import { SettingsProvider } from './UserSettings/SettingsProvider';
+import { AppRoutes } from './AppNavigation/Routes';
+import { useKeepAwake } from 'expo-keep-awake';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-export function App(): JSX.Element {
+export function App(): React.JSX.Element {
+  const queryClient = new QueryClient();
+  useKeepAwake();
+
   return (
-    <ErrorBoundary>
-      <KeepAwake />
+    <>
       <StatusBar barStyle="dark-content" hidden />
-      <QueryClientProvider client={queryClient}>
-        <SettingsProvider>
-          <NavigationContainer>
-            <AppRoutes />
-          </NavigationContainer>
-        </SettingsProvider>
-      </QueryClientProvider>
-    </ErrorBoundary>
+      <ErrorBoundary>
+        <NavigationContainer>
+          <QueryClientProvider client={queryClient}>
+            <SettingsProvider>
+              <SafeAreaProvider>
+                <AppRoutes />
+              </SafeAreaProvider>
+            </SettingsProvider>
+          </QueryClientProvider>
+        </NavigationContainer>
+      </ErrorBoundary>
+    </>
   );
 }
