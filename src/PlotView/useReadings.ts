@@ -1,10 +1,11 @@
 import { extractDate, updateTestReadingDateTimes } from './utils';
 import { DEFAULT_META } from './constants';
-import { playAudioIfNeeded } from './playAudio';
+import { usePlayAudioIfNeeded } from './playAudio';
 import { isTestApi } from '../UserSettings/utils';
 import { useSettingsContext } from '../UserSettings/SettingsProvider';
 import { IApiUrl, IPlotDatum } from './types';
 import { useQuery } from '@tanstack/react-query';
+import { useEffect } from 'react';
 
 const EXTRA_LATENCY_IN_SECONDS = 10 + 10 * Math.random();
 
@@ -96,10 +97,11 @@ export function useReadings() {
        */
       authKey ? 'valid-auth-key' : '',
     ],
-    refetchInterval: (data) => {
+    refetchInterval: (queryResult) => {
+      const readings = queryResult.state.data ?? [];
       let delayToNextRequestInSeconds = 5 * 60;
-      if (data) {
-        const [latestReading] = data;
+      if (readings) {
+        const [latestReading] = readings;
         if (latestReading) {
           const { timeSinceLastReadingInSeconds } =
             extractDate(latestReading) || {};
@@ -143,16 +145,20 @@ export function useReadings() {
       console.debug('Latest Reading', apiReadings[0]);
       return apiReadings;
     },
-    onSuccess: (data) => {
-      const [latestReading] = data;
-      if (latestReading) {
-        const { readingIsOld } = extractDate(latestReading) || {};
-        if (!readingIsOld) {
-          playAudioIfNeeded(latestReading.Value, plotSettings);
-        }
-      }
-    },
   });
+  const { playAudioIfNeeded } = usePlayAudioIfNeeded();
+  useEffect(() => {
+    if (!readings) {
+      return;
+    }
+    const [latestReading] = readings;
+    if (latestReading) {
+      const { readingIsOld } = extractDate(latestReading) || {};
+      if (!readingIsOld) {
+        playAudioIfNeeded(latestReading.Value, plotSettings);
+      }
+    }
+  }, [readings, plotSettings, playAudioIfNeeded]);
   return {
     plotSettings,
     apiUrlsError,

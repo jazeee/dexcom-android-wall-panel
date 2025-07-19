@@ -7,6 +7,7 @@ import { Overlay } from './components/Overlay';
 import { useNavigation } from '@react-navigation/native';
 import { useReadings } from './useReadings';
 import { IPlotDimensions } from './types';
+import { InsetView } from '../common/components/InsetView';
 
 const plotMargin = 4;
 const plotMarginX2 = plotMargin * 2;
@@ -24,14 +25,14 @@ export function PlotView(props: Props) {
 
   if (apiIsLoading) {
     return (
-      <View style={styles.container}>
+      <InsetView style={styles.container}>
         <Text style={styles.logContent}>Loading...</Text>
-      </View>
+      </InsetView>
     );
   }
   if (apiUrlsError) {
     return (
-      <View style={styles.container}>
+      <InsetView style={styles.container}>
         <Text style={styles.message}>
           Problem loading API URLS... {String(apiUrlsError)}
         </Text>
@@ -40,7 +41,7 @@ export function PlotView(props: Props) {
           onPress={() => navigate('SettingsView' as never)}
           title="Settings"
         />
-      </View>
+      </InsetView>
     );
   }
   const logContent = readingsError ? String(readingsError) : 'Success';
@@ -49,7 +50,7 @@ export function PlotView(props: Props) {
   const readingIsOld =
     latestReading && extractDate(latestReading)?.readingIsOld;
   return (
-    <View style={styles.container}>
+    <InsetView style={styles.container}>
       {plotWidth > plotMarginX2 && plotHeight > plotMarginX2 && (
         <View
           style={{
@@ -77,7 +78,7 @@ export function PlotView(props: Props) {
         {logContent}
         {readingIsOld && ' Outdated Reading'}
       </Text>
-    </View>
+    </InsetView>
   );
 }
 
@@ -88,8 +89,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#000',
-    width: '100%',
-    height: '100%',
   },
   overlay: {
     position: 'absolute',

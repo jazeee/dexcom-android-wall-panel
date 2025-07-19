@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, ScrollView } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import { COLORS } from '../../common/colors';
 import { Trend } from '../types';
@@ -29,12 +29,9 @@ export function Overlay(props: Props) {
             color: readingIsOld ? '#666' : COLORS.primary,
           }
         }>
-        {value ? value : '-'}{' '}
-        {readingIsOld && <Icon name="help" size={iconSize} />}
+        {value ? value : '-'} {readingIsOld && <Icon name="help" size={iconSize} />}
         <Icon name={getIconName(trend)} size={iconSize} />
-        {(trend === 1 || trend === 7) && (
-          <Icon name={getIconName()} size={iconSize} />
-        )}
+        {(trend === 1 || trend === 7) && <Icon name={getIconName()} size={iconSize} />}
       </Text>
     </ScrollView>
   );

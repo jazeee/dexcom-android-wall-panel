@@ -1,14 +1,6 @@
-import {
-  IPlotDatum,
-  IPlotDatumDateProps,
-  IPlotSettings,
-  ISummarizedPlotDatum,
-  Trend,
-} from './types';
+import { IPlotDatum, IPlotDatumDateProps, IPlotSettings, ISummarizedPlotDatum, Trend } from './types';
 
-export function extractDate(
-  reading: IPlotDatum | undefined,
-): IPlotDatumDateProps | null {
+export function extractDate(reading: IPlotDatum | undefined): IPlotDatumDateProps | null {
   if (!reading) {
     return null;
   }
@@ -32,10 +24,7 @@ export function extractDate(
   return null;
 }
 
-export function extractData(
-  plotSettings: IPlotSettings,
-  reading: IPlotDatum,
-): ISummarizedPlotDatum {
+export function extractData(plotSettings: IPlotSettings, reading: IPlotDatum): ISummarizedPlotDatum {
   const { higherAxis, lowAxis } = plotSettings;
   const dateDetails = extractDate(reading) || {};
   const { Trend: trend, Value: value } = reading;
@@ -58,27 +47,27 @@ export function getIconName(trend?: Trend | number) {
   switch (trend) {
     case 1:
     case Trend.DoubleUp:
-      return 'arrow-up-thick';
+      return 'keyboard-double-arrow-up';
     case 2:
     case Trend.SingleUp:
-      return 'arrow-up';
+      return 'arrow-upward';
     case 3:
     case Trend.FortyFiveUp:
-      return 'arrow-top-right';
+      return 'trending-up';
     case 4:
     case Trend.Flat:
-      return 'arrow-right';
+      return 'arrow-forward';
     case 5:
     case Trend.FortyFiveDown:
-      return 'arrow-bottom-right';
+      return 'trending-down';
     case 6:
     case Trend.SingleDown:
-      return 'arrow-down';
+      return 'arrow-downward';
     case 7:
     case Trend.DoubleDown:
-      return 'arrow-down-thick';
+      return 'keyboard-double-arrow-down';
     default:
-      return 'help';
+      return 'question-mark';
   }
 }
 
@@ -88,9 +77,7 @@ export function updateTestReadingDateTimes(readings: IPlotDatum[]) {
   readings.forEach((reading: IPlotDatum) => {
     const readingDate = extractDate(reading);
     const updatedTimeInMilliseconds =
-      Date.now() +
-      (readingDate?.timeInMilliseconds ?? 0) -
-      (latestReadingDate?.timeInMilliseconds ?? 0);
+      Date.now() + (readingDate?.timeInMilliseconds ?? 0) - (latestReadingDate?.timeInMilliseconds ?? 0);
     reading.ST = `/Date(${updatedTimeInMilliseconds})/`;
   });
 }

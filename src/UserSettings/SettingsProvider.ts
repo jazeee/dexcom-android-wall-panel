@@ -8,9 +8,6 @@ function useSettings() {
   const settingsQuery = useQuery({
     queryKey: ['async-settings'],
     queryFn: loadSettings,
-    onError: (error: Error) => {
-      console.debug('Error in loading settings', error);
-    },
   });
   const {
     data: settings,
