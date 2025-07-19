@@ -85,6 +85,11 @@ DT is device, ST is server. Trends used to be numbers, like 4 is flat, 3 is up, 
 
 ## Build Notes
 
+Now: `npx react-native build-android --mode=release`
+
+* Takes 5 minutes to build due to Expo
+* `./android/app/build/outputs/bundle/release/app-release.aab`
+
 Truly speaking you only need to run `./build.sh`
 Once built, you can upload the output file to Google Play Store:
 `android/app/build/outputs/bundle/release/`
