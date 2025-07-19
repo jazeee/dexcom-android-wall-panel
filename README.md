@@ -14,29 +14,61 @@ Example:
 
 ![Alt text](app-screen.png?raw=true "Screenshot")
 
+# Metro + React Native Notes - Getting Started
+
+> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+
 ## To Initialize
 
 Install `react-native`, Android Development tools, and recommended tooling for non-Expo development.
 
 * Run `npm install`
 
-## To run with livereload
+## Step 1: Start Metro (dev live reload service)
 
-You first have to start react-native dev listener, then
-deploy the dev app to the device.
+First, you will need to run **Metro**, the JavaScript build tool for React Native.
 
-### First start React Native dev live reload service
+To start the Metro dev server, run the following command from the root of your React Native project:
 
-1. Start the live reload service (this will start listening on port 8081):
-2. `npm start`
+```sh
+npm start
+```
 
-### Next spawn and deploy the app to the device
+## Step 2: Build and run your app
 
-1. If necessary, uninstall any version of this app. (Step 2 will fail otherwise)
-2. Deploy the app to the device and let it connect to 8081.
-3. `npm run android`
+With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
 
-(Shake the device to get a debug menu, which allows reload)
+### Android
+
+```sh
+npm run android
+```
+
+### iOS
+
+For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
+
+The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
+
+```sh
+bundle install
+```
+
+Then, and every time you update your native dependencies, run:
+
+```sh
+bundle exec pod install
+```
+
+For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
+
+```sh
+npm run ios
+```
+
+If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+
+This is one way to run your app — you can also build it directly from Android Studio
 
 ## Development Issues
 
@@ -48,6 +80,10 @@ deploy the dev app to the device.
   * `popd`
   * Possibly also clean/reinstall packages.
 * In my case, it looks like the virtual Android device was simply hung. Force reboot or reset.
+
+### Troubleshooting
+
+If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
 
 ## To trigger debug menu
 
