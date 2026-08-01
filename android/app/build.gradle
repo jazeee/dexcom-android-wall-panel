@@ -95,8 +95,8 @@ android {
         applicationId "com.jazeee"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 31
-        versionName "3.0.6"
+        versionCode 32
+        versionName "3.0.7"
     }
     signingConfigs {
         debug {
